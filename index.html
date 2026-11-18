@@ -131,10 +131,14 @@ box(scene,stationX,2.15,stationZ+3.3,15,4.3,6.4,mat(0xe5dfc9));
 box(scene,stationX,4.45,stationZ+3.3,15,.35,6.6,mat(0x315b72));
 box(scene,stationX,5.15,stationZ+3.3,15,.95,.22,mat(0xb82e27));
 box(scene,stationX,5.18,stationZ+3.16,12,.58,.08,mat(0xf4eee0));
-const stationSign=document.createElement('div');
-stationSign.textContent='KÖY PETROL';
-stationSign.style.cssText='position:absolute;left:-9999px';
-document.body.appendChild(stationSign);
+const signCanvas=document.createElement('canvas');
+signCanvas.width=512;signCanvas.height=128;
+const signCtx=signCanvas.getContext('2d');
+signCtx.fillStyle='#b82e27';signCtx.fillRect(0,0,512,128);
+signCtx.fillStyle='#fff4df';signCtx.font='bold 64px Arial';signCtx.textAlign='center';signCtx.textBaseline='middle';signCtx.fillText('KÖY PETROL',256,66);
+const signTexture=new THREE.CanvasTexture(signCanvas);
+const signBoard=new THREE.Mesh(new THREE.PlaneGeometry(6.5,1.65),new THREE.MeshBasicMaterial({map:signTexture}));
+signBoard.position.set(stationX,3.5,stationZ+6.55);scene.add(signBoard);
 for(const px of [stationX-4,stationX+4]){
   box(scene,px,2.35,stationZ-2.2,.22,4.7,.22,mat(0xd8d5c9));
 }
