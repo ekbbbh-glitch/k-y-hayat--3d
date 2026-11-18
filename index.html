@@ -132,10 +132,10 @@ for(let row=0;row<13;row++){
     const head=new THREE.Mesh(new THREE.ConeGeometry(.075,.25,5),wheatMat);
     head.position.set(.015,.91,0);plant.add(head);
     plant.position.set(x,.09,z);plant.scale.y=.16;scene.add(plant);
-    crops.push({mesh:plant,height:.16,x,z,harvested:false});
+    crops.push({mesh:plant,height:.16,x,z,harvested:false,harvestedAt:0});
   }
 }
-let growthClock=0,harvestedCount=0;
+let growthClock=0,harvestedCount=0,gameTime=0;
 const trailer=vehicles[2];
 function addTrailerWheat(){
   const n=harvestedCount++;
@@ -162,7 +162,13 @@ document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOff
 function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;if(inside(-13,-10,6.5,4.5))return true;if(inside(1.5,-10,4.5,4.5))return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
 function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
+gameTime+=dt;
 growthClock+=dt;
+for(const crop of crops){
+  if(crop.harvested&&gameTime-crop.harvestedAt>=60){
+    crop.harvested=false;crop.height=.16;crop.mesh.scale.y=.16;scene.add(crop.mesh);
+  }
+}
 if(growthClock>=20){
   growthClock-=20;
   for(const crop of crops){
@@ -178,7 +184,7 @@ if(active.userData.type==='tractor'){
     if(crop.harvested)continue;
     const local=active.worldToLocal(new THREE.Vector3(crop.x,.5,crop.z));
     if(Math.abs(local.x)<1.82&&local.z< -1.72&&local.z> -3.18){
-      crop.harvested=true;scene.remove(crop.mesh);addTrailerWheat();
+      crop.harvested=true;crop.harvestedAt=gameTime;scene.remove(crop.mesh);addTrailerWheat();
     }
   }
 }
