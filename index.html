@@ -16,13 +16,13 @@
 .invslot.selected{border:3px solid #f0c65e;background:#4b4025ee}.invslot .item{font-size:23px;line-height:27px}.invslot .count{font-size:10px;color:#f3d77e}
 #chickenLabels{position:fixed;inset:0;pointer-events:none;z-index:4}.chicken-label{position:absolute;transform:translate(-50%,-100%);padding:3px 6px;border-radius:5px;background:#17251ddd;color:#fff;font-size:11px;white-space:nowrap;text-shadow:none}.chicken-label.hungry{background:#8b3429}
 #panel{max-width:520px;padding:30px;background:#17251ddd;border:1px solid #ffffff33;border-radius:18px;box-shadow:0 18px 60px #0006}
-button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}
+button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}.jobChoices{display:flex;gap:10px;justify-content:center;margin:18px 0}.job{background:#35483b;color:#fff;border:2px solid #82917f}.job.active{background:#d2a65b;color:#211b12;border-color:#ffe3a0}
 small{color:#d8e2d6;line-height:1.7}
 </style>
 </head>
 <body>
-<div id="start"><div id="panel"><h1>🌿 KÖY HAYATI 3D</h1><p>Güneşli bir Anadolu köyünde yeni hayatın başlıyor.</p><p><button id="play">KÖYE GİR</button></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
-<div id="hud"><div id="brand">KÖY HAYATI 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span>Tavuk yemi</span><span class="count">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span>İnek yemi</span><span class="count">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span>Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span>Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span>Boş</span></div></div>
+<div id="start"><div id="panel"><h1>🌿 KÖY HAYATI 3D</h1><p>Önce yapmak istediğin işi seç.</p><div class="jobChoices"><button id="jobFarm" class="job active">🌾 ÇİFTÇİLİK</button><button id="jobBuild" class="job">🧱 İNŞAATÇILIK</button></div><p id="jobDescription">Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.</p><p><button id="play">OYUNA BAŞLA</button></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
+<div id="hud"><div id="brand">KÖY HAYATI 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -44,15 +44,15 @@ box(scene,-13,.08,-10,12.7,.16,8.7,mat(0x9a8c78));
 box(scene,-19.45,2.1,-10,.22,4.2,9,M.wall);box(scene,-6.55,2.1,-10,.22,4.2,9,M.wall);box(scene,-13,2.1,-14.45,13,4.2,.22,M.wall);
 box(scene,-15.15,2.1,-5.55,8.7,4.2,.22,M.wall);box(scene,-7.85,2.1,-5.55,3.3,4.2,.22,M.wall);box(scene,-13,4.25,-10,13.5,.3,9.5,M.wood);
 const roof1=new THREE.Mesh(new THREE.ConeGeometry(8.4,3.3,4),M.roof);roof1.scale.set(1,.55,.68);roof1.rotation.y=Math.PI/4;roof1.position.set(-13,5.15,-10);roof1.castShadow=true;scene.add(roof1);
-box(scene,-15.8,1.45,-10.55,7.1,2.9,.16,M.wall);box(scene,-12.25,1.45,-12.35,.16,2.9,4.1,M.wall);box(scene,-9.45,1.45,-10.55,5.5,2.9,.16,M.wall);box(scene,-9.45,1.45,-12.35,.16,2.9,4.1,M.wall);
+box(scene,-17.8,1.45,-10.55,3.1,2.9,.16,M.wall);box(scene,-13.2,1.45,-10.55,1.9,2.9,.16,M.wall);box(scene,-12.25,1.45,-13.35,.16,2.9,2.1,M.wall);box(scene,-12.25,1.45,-10.75,.16,2.9,1.3,M.wall);box(scene,-9.45,1.45,-10.55,2.3,2.9,.16,M.wall);box(scene,-9.45,1.45,-13.35,.16,2.9,2.1,M.wall);box(scene,-9.45,1.45,-10.75,.16,2.9,1.3,M.wall);
 box(scene,-17,2.25,-5.28,1.5,1.8,.12,M.wood);box(scene,-17,2.25,-5.18,1.25,1.55,.08,M.glass);box(scene,-13,3.25,-5.2,2.4,1.1,.14,M.dark);box(scene,-13,3.85,-5.1,2.6,.12,.45,M.wood);for(let x=-14.1;x<=-11.9;x+=.35)box(scene,x,3.55,-4.9,.07,.6,.07,M.wood);box(scene,-7.3,2.7,-5.18,1.1,1.3,.1,M.glass);
 box(scene,-6.1,3.15,-5.15,1.15,1.6,.04,mat(0xb51f2a));cyl(scene,-6.3,3.2,-5.1,.28,.28,.025,mat(0xffffff),24);cyl(scene,-6.22,3.27,-5.07,.23,.23,.03,mat(0xb51f2a),24);
 const houseDoor=new THREE.Group();houseDoor.position.set(-10.75,0,-5.42);scene.add(houseDoor);box(houseDoor,.62,1.15,0,1.24,2.3,.16,M.wood);cyl(houseDoor,1.05,1.15,.12,.055,.055,.08,mat(0xd6b45f),12);
 // Salon: halı, kanepe, sehpa, televizyon ve avize.
-box(scene,-16.2,.18,-7.4,4.2,.12,3.2,mat(0x9b4433));box(scene,-16.2,.72,-7.4,3.1,.85,.48,mat(0x725044));box(scene,-16.2,1.15,-7.95,3.1,.18,.25,mat(0x725044));box(scene,-13.4,.48,-8.3,1.5,.12,.8,mat(0x68472d));box(scene,-13.4,.95,-8.75,1.25,.85,.12,M.dark);box(scene,-13.4,.95,-8.66,1.1,.68,.04,mat(0x151c20));
+box(scene,-16.2,.17,-7.5,3.5,.1,2.5,mat(0x9b4433));box(scene,-16.2,.72,-7.4,3.1,.85,.48,mat(0x725044));box(scene,-16.2,1.15,-7.95,3.1,.18,.25,mat(0x725044));box(scene,-13.4,.48,-8.3,1.5,.12,.8,mat(0x68472d));box(scene,-13.4,.95,-8.75,1.25,.85,.12,M.dark);box(scene,-13.4,.95,-8.66,1.1,.68,.04,mat(0x151c20));
 cyl(scene,-15.2,3.85,-7.6,.16,.16,.25,mat(0xe2d3a8),16);for(let i=0;i<4;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),mat(0xffe6a1));b.position.set(-15.2+Math.cos(i*Math.PI/2)*.42,3.7,-7.6+Math.sin(i*Math.PI/2)*.42);scene.add(b)}
 // Yatak odası.
-box(scene,-16.1,.18,-12.55,4.2,.12,3.2,mat(0x6b5545));box(scene,-16.1,.22,-12.55,3.5,.18,2.2,mat(0x68472d));box(scene,-16.1,.62,-12.55,3.35,.65,2.05,mat(0xe4dfd0));box(scene,-16.1,1.02,-13.25,3.4,.16,.25,mat(0x7d493b));box(scene,-17.1,.92,-13.05,.85,.2,.55,mat(0xf4eee0));box(scene,-15.1,.92,-13.05,.85,.2,.55,mat(0xf4eee0));box(scene,-18.4,.45,-11.3,.8,.8,.7,mat(0x68472d));
+box(scene,-16.1,.17,-12.6,3.5,.1,2.5,mat(0x6b5545));box(scene,-16.1,.22,-12.55,3.5,.18,2.2,mat(0x68472d));box(scene,-16.1,.62,-12.55,3.35,.65,2.05,mat(0xe4dfd0));box(scene,-16.1,1.02,-13.25,3.4,.16,.25,mat(0x7d493b));box(scene,-17.1,.92,-13.05,.85,.2,.55,mat(0xf4eee0));box(scene,-15.1,.92,-13.05,.85,.2,.55,mat(0xf4eee0));box(scene,-18.4,.45,-11.3,.8,.8,.7,mat(0x68472d));
 // Küçük banyo: kompakt lavabo ve klozet.
 box(scene,-8.4,.48,-13.15,1.2,.12,.65,mat(0xdedbd2));cyl(scene,-8.4,.85,-13.15,.12,.12,.3,mat(0xbfc7c7),16);box(scene,-7.2,.48,-12.1,.55,.9,.7,mat(0xe5e4df));box(scene,-7.2,.96,-11.75,.55,.12,.35,mat(0xe5e4df));
 // Garaj: siyah zemin ve yukarı kayan kepenk.
@@ -152,6 +152,20 @@ for(const px of [stationX-3.6,stationX,stationX+3.6]){
   box(scene,px,.18,stationZ-5.1,1.25,.12,1.05,mat(0x55564f));
 }
 box(scene,stationX,6.15,stationZ+3.3,16,.18,.2,mat(0xf0e5c7));
+// Benzinliğin yanında yarım kalmış inşaat ve çalışan ustalar.
+const buildX=17,buildZ=35;
+box(scene,buildX,.08,buildZ,17,.16,14,mat(0x9b8b70));
+const concrete=mat(0x85827a),brick=mat(0x9d5940),scaffold=mat(0x765438);
+box(scene,buildX-7,1.8,buildZ-5,.28,3.6,.28,concrete);box(scene,buildX+7,1.8,buildZ-5,.28,3.6,.28,concrete);box(scene,buildX-7,1.8,buildZ+5,.28,3.6,.28,concrete);box(scene,buildX,3.55,buildZ-5,14,.22,.28,concrete);box(scene,buildX+7,1.8,buildZ,.28,3.6,10,concrete);
+for(let row=0;row<5;row++)for(let col=0;col<8;col++){if(row===2&&(col===2||col===3))continue;box(scene,buildX-5.8+col*1.65,.38+row*.48,buildZ+4.82,1.55,.44,.18,brick)}
+box(scene,buildX,3.45,buildZ,14,.18,10,mat(0x77746d));
+for(const x of [buildX-8,buildX-5,buildX+5,buildX+8])for(const z of [buildZ-6,buildZ+6])box(scene,x,1.6,z,.12,3.2,.12,scaffold);
+for(const y of [1.2,2.5]){box(scene,buildX,y,buildZ-6,16,.1,.1,scaffold);box(scene,buildX,y,buildZ+6,16,.1,.1,scaffold)}
+for(let i=0;i<6;i++)box(scene,buildX-5+i*.55,.35,buildZ+8,.48,.65,.42,brick);
+box(scene,buildX+5,.45,buildZ+8,2,.8,1.3,mat(0xb6a18a));box(scene,buildX+5,1.1,buildZ+8,2.1,.18,1.4,mat(0x6d6d68));
+const workers=[];
+for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);cyl(w,0,1.15,0,.22,.25,.72,pants,10);box(w,0,1.78,0,.5,.72,.28,shirt);cyl(w,0,2.35,0,.2,.2,.38,skin,10);cyl(w,0,2.58,0,.27,.27,.16,mat(0xd0a23b),12);box(w,0,2.08,.22,.08,.55,.08,skin);box(w,0,2.08,-.22,.08,.55,.08,skin);workers.push({mesh:w,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
+
 // Oyun alanının önündeki çift yönlü asfalt köy yolu.
 const roadMat=mat(0x343735),roadLine=mat(0xe7e2cf);
 box(scene,0,.015,19,190,.12,8,roadMat);
@@ -311,25 +325,32 @@ for(let i=0;i<9;i++){
 }
 // courtyard clutter and barrels
 for(let i=0;i<5;i++){cyl(scene,-3+i*.75,.55,-3,.32,.32,1.1,i%2?M.red:M.yellow,12)}
+// İş seçimi ve işe göre envanter.
+let selectedJob='farm';
+const jobFarm=document.getElementById('jobFarm'),jobBuild=document.getElementById('jobBuild'),jobDescription=document.getElementById('jobDescription');
+function chooseJob(job){selectedJob=job;jobFarm.classList.toggle('active',job==='farm');jobBuild.classList.toggle('active',job==='build');jobDescription.textContent=job==='farm'?'Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.':'Benzinliğin yanındaki şantiyede çalış; boya, çimento, tuğla, tahta ve kum kullan.'}
+jobFarm.onclick=()=>chooseJob('farm');jobBuild.onclick=()=>chooseJob('build');
+function setInventoryForJob(){const data=selectedJob==='build'?[['🪣','Boya','∞'],['🧱','Çimento','∞'],['🧱','Tuğla','∞'],['🪵','Tahta','∞'],['🪨','Kum','∞']]:[['🌽','Tavuk yemi','∞'],['🌾','İnek yemi','∞'],['—','Boş',''],['—','Boş',''],['—','Boş','']];data.forEach((d,i)=>{document.querySelector('#slot'+(i+1)+' .item').textContent=d[0];document.getElementById('slotName'+(i+1)).textContent=d[1];document.getElementById('slotCount'+(i+1)).textContent=d[2]})}
 // controls
 const keys={};
 function refuelVehicle(){if(!active)return;const d=Math.hypot(active.position.x-stationX,active.position.z-(stationZ-5.1));if(d>9){hint.textContent='Benzin almak için benzinlik pompalarına yaklaş';return}if(active.userData.fuel>=100){hint.textContent='Depo zaten dolu · %100';return}active.userData.refueling=!active.userData.refueling;hint.textContent=active.userData.refueling?'Benzin dolduruluyor · R ile durdur':'Benzin doldurma durduruldu';}
-let selectedFeedSlot=1;function selectFeedSlot(slot){if(slot!==1&&slot!==2)return;selectedFeedSlot=slot;document.querySelectorAll('.invslot').forEach(s=>s.classList.remove('selected'));document.getElementById('slot'+slot).classList.add('selected');hint.textContent=slot===1?'Tavuk yemi seçildi · Tavuğa yaklaş ve F bas':'İnek yemi seçildi · İneğe yaklaş ve F bas';}
+let selectedFeedSlot=1;function selectFeedSlot(slot){if(slot<1||slot>5)return;selectedFeedSlot=slot;document.querySelectorAll('.invslot').forEach(s=>s.classList.remove('selected'));document.getElementById('slot'+slot).classList.add('selected');if(selectedJob==='farm')hint.textContent=slot===1?'Tavuk yemi seçildi · Tavuğa yaklaş ve F bas':slot===2?'İnek yemi seçildi · İneğe yaklaş ve F bas':'Bu slot boş';else hint.textContent='Seçildi: '+document.getElementById('slotName'+slot).textContent}
 function feedNearestAnimal(){if(active){hint.textContent='Hayvanları beslemek için araçtan in';return}let target=null,best=5,isCow=false;for(const animal of [...chickens,...cows]){const d=camera.position.distanceTo(animal.mesh.position);if(d<best){best=d;target=animal;isCow=cows.includes(animal)}}if(!target){hint.textContent='Beslemek için uygun hayvana yaklaş (5 metre)';return}if((selectedFeedSlot===2)!==isCow){hint.textContent=isCow?'Bu inek · İnek yemi için 2. slotu seç':'Bu tavuk · Tavuk yemi için 1. slotu seç';return}target.hungry=false;target.hungerLeft=60;target.pecking=false;target.peckDuration=0;target.head.rotation.x=0;hint.textContent=(isCow?'İnek':'Tavuk')+' beslendi · 60 saniye sonra tekrar acıkacak';}
-document.getElementById('slot1').addEventListener('click',()=>selectFeedSlot(1));document.getElementById('slot2').addEventListener('click',()=>selectFeedSlot(2));for(let i=3;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>{hint.textContent='Bu envanter slotu boş'});addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot(selectedFeedSlot===1?2:1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat)feedNearestAnimal();if(e.code==='Digit1')selectFeedSlot(1);if(e.code==='Digit2')selectFeedSlot(2)});
+document.getElementById('slot1').addEventListener('click',()=>selectFeedSlot(1));document.getElementById('slot2').addEventListener('click',()=>selectFeedSlot(2));for(let i=3;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>{hint.textContent='Bu envanter slotu boş'});addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot((selectedFeedSlot+(e.deltaY>0?1:4))%5+1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&selectedJob==='farm')feedNearestAnimal();if(/^Digit[1-5]$/.test(e.code))selectFeedSlot(Number(e.code.slice(5)))});
 addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
 let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;const start=document.getElementById('start'),hint=document.getElementById('hint'),mode=document.getElementById('mode');
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
 camera.position.set(-10,1.7,-2.7);
 yaw=0;pitch=0;
-document.getElementById('play').onclick=()=>{renderer.domElement.requestPointerLock();start.style.display='none'};
+document.getElementById('play').onclick=()=>{setInventoryForJob();if(selectedJob==='build'){camera.position.set(buildX,1.7,buildZ+12);yaw=Math.PI;hint.textContent='İnşaat alanındasın · Malzemeler slotlarda'}else{camera.position.set(-10,1.7,-2.7);yaw=0;hint.textContent='Çiftçilik · Köy hayatına hoş geldin'}pitch=0;renderer.domElement.requestPointerLock();start.style.display='none'};
 document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===renderer.domElement);
 document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
-function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;const h=inside(-13,-10,6.5,4.5)&&!(Math.abs(x+10)<1.05&&z>-6.5&&z<-4.7);const g=inside(1.5,-10,4.5,4.5)&&!(Math.abs(x-1.5)<3.5&&z>-6.6&&z<-4.6);if(h||g)return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
+function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;const h=inside(-13,-10,6.5,4.5)&&!(Math.abs(x+10)<1.25&&z>-7.35&&z<-4.45);const g=inside(1.5,-10,4.5,4.5)&&!(Math.abs(x-1.5)<3.65&&z>-7.35&&z<-4.45);if(h||g)return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
 function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
+for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;}
 const nearHouseDoor=!active&&Math.hypot(camera.position.x+10,camera.position.z+5.4)<3.2;const nearGarageDoor=!active&&Math.hypot(camera.position.x-1.5,camera.position.z+5.4)<5.2;houseDoor.rotation.y+=(nearHouseDoor?-1.35-houseDoor.rotation.y:0-houseDoor.rotation.y)*Math.min(1,dt*3.5);garageDoor.position.y+=(nearGarageDoor?4.05:.08-garageDoor.position.y)*Math.min(1,dt*2.2);if(!active&&(nearHouseDoor||nearGarageDoor))hint.textContent=nearHouseDoor?'Kapı açılıyor · Eve girmek için içeri yürü':'Garaj kapısı açılıyor';
 // Yolda aynı anda 2-4 araç bulunur; araç tipleri ve hızları rastgele seçilir.
 trafficChangeClock-=dt;
