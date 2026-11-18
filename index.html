@@ -43,7 +43,10 @@ document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementByI
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module" id="gameModule">
-import * as THREE from 'three';
+let THREE;
+try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');}
+catch(primaryImportError){try{THREE=await import('https://unpkg.com/three@0.160.0/build/three.module.js');}
+catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenemedi. İnternet/CDN erişimini kontrol et. '+(fallbackImportError.message||fallbackImportError));}}
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);
@@ -361,7 +364,7 @@ let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;co
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
 camera.position.set(-10,1.7,-2.7);
 yaw=0;pitch=0;
-window.__gameReady=true;const playButton=document.getElementById('play');playButton.type='button';playButton.addEventListener('click',()=>{try{setInventoryForJob();if(selectedJob==='build'){camera.position.set(buildX,1.7,buildZ+12);yaw=Math.PI;hint.textContent='İnşaat alanındasın · Malzemeler slotlarda'}else{camera.position.set(-10,1.7,-2.7);yaw=0;hint.textContent='Çiftçilik · Köy hayatına hoş geldin'}pitch=0;start.style.display='none';try{const lockResult=renderer.domElement.requestPointerLock();if(lockResult&&typeof lockResult.catch==='function')lockResult.catch(()=>{hint.textContent+=' · Fare kilidi için ekrana tıkla'});}catch(lockError){hint.textContent+=' · Fare kilidi için ekrana tıkla'}}catch(error){console.error('Oyuna başlama hatası:',error);hint.textContent='Başlatma hatası: '+error.message;}});
+window.__gameReady=true;const playButton=document.getElementById('play');playButton.type='button';playButton.onclick=()=>{try{setInventoryForJob();if(selectedJob==='build'){camera.position.set(buildX,1.7,buildZ+12);yaw=Math.PI;hint.textContent='İnşaat alanındasın · Malzemeler slotlarda'}else{camera.position.set(-10,1.7,-2.7);yaw=0;hint.textContent='Çiftçilik · Köy hayatına hoş geldin'}pitch=0;start.style.display='none';try{const lockResult=renderer.domElement.requestPointerLock();if(lockResult&&typeof lockResult.catch==='function')lockResult.catch(()=>{hint.textContent+=' · Fare kilidi için ekrana tıkla'});}catch(lockError){hint.textContent+=' · Fare kilidi için ekrana tıkla'}}catch(error){console.error('Oyuna başlama hatası:',error);const p=document.getElementById('bootError');if(p)p.textContent='BAŞLATMA HATASI: '+(error.message||error);hint.textContent='Başlatma hatası: '+error.message;}};
 if(window.__gameStartRequested){window.__gameStartRequested=false;playButton.click();}
 document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===renderer.domElement);
 document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
