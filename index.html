@@ -50,6 +50,13 @@ catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenem
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
+const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
+const mat=(c,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+const M={grass:mat(0x71894c),dirt:mat(0x9a805e),stone:mat(0x9b9587),wall:mat(0xd0c1a1),roof:mat(0x8f4933),wood:mat(0x684a30),dark:mat(0x282b29),glass:new THREE.MeshStandardMaterial({color:0x9dbbc0,roughness:.25,metalness:.15}),red:mat(0x9d3023),yellow:mat(0xb78b28),rubber:mat(0x20211f),white:mat(0xd5d3c9),green:mat(0x476b36)};
+function box(parent,x,y,z,w,h,d,material,rot=0){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.rotation.y=rot;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function cyl(parent,x,y,z,r1,r2,h,material,seg=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 // Görünmez tuşla tetiklenen kısa el/sigara animasyonu; ekranda metin gösterilmez.
 const smokeHand=new THREE.Group();smokeHand.position.set(.38,-.34,-.72);smokeHand.visible=false;camera.add(smokeHand);
 const skinMat=mat(0xb9825c),cigMat=mat(0xe9e5d9),emberMat=mat(0xd94b20);
@@ -62,13 +69,6 @@ const smokePuffs=[];
 for(let i=0;i<7;i++){const puff=new THREE.Mesh(new THREE.SphereGeometry(.045+i*.008,8,7),new THREE.MeshBasicMaterial({color:0xd9dedb,transparent:true,opacity:0,depthWrite:false}));puff.visible=false;smokeHand.add(puff);smokePuffs.push(puff)}
 let smoking=false,smokeTime=0,smokePuffClock=0;
 function startSmoking(){if(smoking||active)return;smoking=true;smokeTime=0;smokePuffClock=0;smokeHand.visible=true;smokeHand.position.set(.38,-.34,-.72);smokePuffs.forEach(p=>{p.visible=false;p.material.opacity=0})}
-const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
-const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
-const mat=(c,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
-const M={grass:mat(0x71894c),dirt:mat(0x9a805e),stone:mat(0x9b9587),wall:mat(0xd0c1a1),roof:mat(0x8f4933),wood:mat(0x684a30),dark:mat(0x282b29),glass:new THREE.MeshStandardMaterial({color:0x9dbbc0,roughness:.25,metalness:.15}),red:mat(0x9d3023),yellow:mat(0xb78b28),rubber:mat(0x20211f),white:mat(0xd5d3c9),green:mat(0x476b36)};
-function box(parent,x,y,z,w,h,d,material,rot=0){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.rotation.y=rot;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-function cyl(parent,x,y,z,r1,r2,h,material,seg=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function ground(){const g=new THREE.Mesh(new THREE.PlaneGeometry(260,260),M.grass);g.rotation.x=-Math.PI/2;g.position.y=-.08;g.receiveShadow=true;scene.add(g);box(scene,0,.005,2,42,.06,35,M.dirt);box(scene,0,.01,-19,90,.08,8,M.dirt)}
 ground();
 // hills and mountain silhouettes
@@ -393,10 +393,10 @@ function blocked(x,z,r=.38){
  const hit=(ax,az,bx,bz)=>{if(Math.abs(ax-bx)<.001)return Math.abs(x-ax)<r+.14&&z>Math.min(az,bz)-r&&z<Math.max(az,bz)+r;return Math.abs(z-az)<r+.14&&x>Math.min(ax,bx)-r&&x<Math.max(ax,bx)+r};
  // Evin dış duvarları: kapı boşluğu açık bırakılır.
  if(hit(-19.45,-14.5,-19.45,-5.5)||hit(-6.55,-14.5,-6.55,-5.5)||hit(-19.5,-14.45,-6.5,-14.45))return true;
- if(hit(-19.5,-5.55,-11.42,-5.55)||hit(-10.08,-5.55,-6.5,-5.55))return true;
+ if(hit(-19.5,-5.55,-10.8,-5.55)||hit(-9.5,-5.55,-6.5,-5.55))return true;
  // Evin oda ayırıcı duvarları ve geçiş boşlukları.
- if(hit(-12.25,-14.4,-12.25,-12.3)||hit(-12.25,-11.4,-12.25,-9.7))return true;
- if(hit(-9.45,-14.4,-9.45,-12.3)||hit(-9.45,-11.4,-9.45,-9.7))return true;
+ if(hit(-12.25,-14.4,-12.25,-12.3)||hit(-12.25,-11.4,-12.25,-10.1))return true;
+ if(hit(-9.45,-14.4,-9.45,-12.3)||hit(-9.45,-11.4,-9.45,-10.1))return true;
  // Garajın üç kapalı duvarı; ön taraf kepenk açıldığında tamamen geçilebilir.
  if(hit(-2.95,-14.5,-2.95,-5.5)||hit(5.95,-14.5,5.95,-5.5)||hit(-3,-14.45,6,-14.45))return true;
  // Köy yolu kenarı.
