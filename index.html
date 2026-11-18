@@ -49,7 +49,7 @@ catch(primaryImportError){try{THREE=await import('https://unpkg.com/three@0.160.
 catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenemedi. İnternet/CDN erişimini kontrol et. '+(fallbackImportError.message||fallbackImportError));}}
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
-const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);
+const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);scene.add(camera);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
 const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
