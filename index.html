@@ -16,7 +16,7 @@
 .invslot.selected{border:3px solid #f0c65e;background:#4b4025ee}.invslot .item{font-size:23px;line-height:27px}.invslot .count{font-size:10px;color:#f3d77e}
 #chickenLabels{position:fixed;inset:0;pointer-events:none;z-index:4}.chicken-label{position:absolute;transform:translate(-50%,-100%);padding:3px 6px;border-radius:5px;background:#17251ddd;color:#fff;font-size:11px;white-space:nowrap;text-shadow:none}.chicken-label.hungry{background:#8b3429}
 #panel{max-width:520px;padding:30px;background:#17251ddd;border:1px solid #ffffff33;border-radius:18px;box-shadow:0 18px 60px #0006}
-button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}.jobChoices{display:flex;gap:10px;justify-content:center;margin:18px 0}.job{background:#35483b;color:#fff;border:2px solid #82917f}.job.active{background:#d2a65b;color:#211b12;border-color:#ffe3a0}
+button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}#jobMenu{cursor:auto!important}#jobMenu button{cursor:pointer!important}.jobChoices{display:flex;gap:10px;justify-content:center;margin:18px 0}.job{background:#35483b;color:#fff;border:2px solid #82917f}.job.active{background:#d2a65b;color:#211b12;border-color:#ffe3a0}
 small{color:#d8e2d6;line-height:1.7}
 </style>
 </head>
@@ -366,7 +366,7 @@ let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;co
 camera.position.set(-10,1.7,-2.7);
 yaw=0;pitch=0;
 window.__gameReady=true;setInventoryForJob();jobMenu.style.display='none';hint.textContent='Köy hayatına hoş geldin · Meslek seçimi için 9 tuşuna bas';
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;if(locked)hint.textContent=active?'Fare kilitlendi · C: dış kamera · E: in':'Fare kilitlendi · WASD ile yürü · E ile araca bin · ESC: bırak';});
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;document.body.style.setProperty('cursor',locked?'none':'auto','important');if(locked)hint.textContent=active?'Fare kilitlendi · C: dış kamera · E: in':'Fare kilitlendi · WASD ile yürü · E ile araca bin · ESC: bırak';});
 document.addEventListener('pointerlockerror',()=>{locked=false;hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});
 renderer.domElement.style.cursor='none';
 document.addEventListener('click',e=>{if(jobMenu.style.display==='grid'||e.target.closest('#inventory,button'))return;if(document.pointerLockElement!==renderer.domElement){try{const result=renderer.domElement.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});}catch(err){hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';}}},true);
