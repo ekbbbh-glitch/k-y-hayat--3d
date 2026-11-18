@@ -204,7 +204,7 @@ for(let row=0;row<4;row++)for(let col=0;col<7;col++){
 }
 let constructionProgress=0,constructionWorkClock=0;
 const workers=[];
-for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);cyl(w,0,1.15,0,.22,.25,.72,pants,10);box(w,0,1.78,0,.5,.72,.28,shirt);cyl(w,0,2.35,0,.2,.2,.38,skin,10);cyl(w,0,2.58,0,.27,.27,.16,mat(0xd0a23b),12);box(w,0,2.08,.22,.08,.55,.08,skin);box(w,0,2.08,-.22,.08,.55,.08,skin);workers.push({mesh:w,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
+for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);cyl(w,0,1.15,0,.22,.25,.72,pants,10);box(w,0,1.78,0,.5,.72,.28,shirt);cyl(w,0,2.35,0,.2,.2,.38,skin,10);cyl(w,0,2.58,0,.27,.27,.16,mat(0xd0a23b),12);const armL=new THREE.Group(),armR=new THREE.Group();armL.position.set(-.27,2.05,.13);armR.position.set(.27,2.05,.13);w.add(armL,armR);box(armL,0,-.2,0,.13,.46,.14,skin);box(armR,0,-.2,0,.13,.46,.14,skin);const tool=cyl(armR,.04,-.42,.03,.025,.025,.48,mat(0x765334),8);tool.rotation.z=.2;workers.push({mesh:w,armL,armR,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
 
 // Oyun alanının önündeki çift yönlü asfalt köy yolu.
 const roadMat=mat(0x343735),roadLine=mat(0xe7e2cf);
@@ -407,7 +407,7 @@ function interact(){if(active){const leaving=active;externalView=false;const exi
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
-for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;}
+for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;w.armL.rotation.x=Math.sin(gameTime*5+w.phase)*.48;w.armR.rotation.x=Math.sin(gameTime*5+w.phase+Math.PI)*.62;}
 if(constructionProgress<progressingBricks.length){
  constructionWorkClock+=dt;
  if(constructionWorkClock>=1.65){
