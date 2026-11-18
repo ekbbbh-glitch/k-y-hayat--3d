@@ -368,7 +368,7 @@ yaw=0;pitch=0;
 window.__gameReady=true;setInventoryForJob();jobMenu.style.display='none';hint.textContent='Köy hayatına hoş geldin · Meslek seçimi için 9 tuşuna bas';
 document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===renderer.domElement);
 renderer.domElement.style.cursor='crosshair';renderer.domElement.addEventListener('click',()=>{if(jobMenu.style.display!=='grid'&&document.pointerLockElement!==renderer.domElement){const result=renderer.domElement.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{hint.textContent='Fare kilidi açılamadı · Oyun ekranına tekrar tıkla';});}});
-document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
+document.addEventListener('mousemove',e=>{if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
 function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;const h=inside(-13,-10,6.5,4.5)&&!(Math.abs(x+10)<1.25&&z>-7.35&&z<-4.45);const g=inside(1.5,-10,4.5,4.5)&&!(Math.abs(x-1.5)<3.65&&z>-7.35&&z<-4.45);if(h||g)return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
 function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
@@ -490,7 +490,7 @@ if(growthClock>=20){
     crop.mesh.scale.y=crop.height;
   }
 }
-if(locked){camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));let move=new THREE.Vector3();if(keys.KeyW)move.add(forward);if(keys.KeyS)move.sub(forward);if(keys.KeyD)move.add(right);if(keys.KeyA)move.sub(right);if(move.lengthSq())move.normalize();const speed=(keys.ShiftLeft?8:4.4)*dt;
+if(true){camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));let move=new THREE.Vector3();if(keys.KeyW)move.add(forward);if(keys.KeyS)move.sub(forward);if(keys.KeyD)move.add(right);if(keys.KeyA)move.sub(right);if(move.lengthSq())move.normalize();const speed=(keys.ShiftLeft?8:4.4)*dt;
 if(active){
 const fuelPanel=document.getElementById('fuelPanel');
 fuelPanel.style.display='block';
