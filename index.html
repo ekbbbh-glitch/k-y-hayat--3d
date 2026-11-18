@@ -50,6 +50,18 @@ catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenem
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);
+// Görünmez tuşla tetiklenen kısa el/sigara animasyonu; ekranda metin gösterilmez.
+const smokeHand=new THREE.Group();smokeHand.position.set(.38,-.34,-.72);smokeHand.visible=false;camera.add(smokeHand);
+const skinMat=mat(0xb9825c),cigMat=mat(0xe9e5d9),emberMat=mat(0xd94b20);
+const forearm=box(smokeHand,.02,-.13,.08,.19,.19,.48,skinMat,-.18);
+const palm=box(smokeHand,.015,-.015,-.17,.22,.14,.2,skinMat,-.12);
+for(let i=0;i<3;i++)box(smokeHand,.075+i*.045,.055,-.27,.045,.13,.11,skinMat,-.12);
+const cigarette=cyl(smokeHand,.13,.12,-.31,.018,.018,.25,cigMat,8);cigarette.rotation.x=Math.PI/2;
+const ember=new THREE.Mesh(new THREE.SphereGeometry(.022,8,6),emberMat);ember.position.set(.13,.12,-.435);smokeHand.add(ember);
+const smokePuffs=[];
+for(let i=0;i<7;i++){const puff=new THREE.Mesh(new THREE.SphereGeometry(.045+i*.008,8,7),new THREE.MeshBasicMaterial({color:0xd9dedb,transparent:true,opacity:0,depthWrite:false}));puff.visible=false;smokeHand.add(puff);smokePuffs.push(puff)}
+let smoking=false,smokeTime=0,smokePuffClock=0;
+function startSmoking(){if(smoking||active)return;smoking=true;smokeTime=0;smokePuffClock=0;smokeHand.visible=true;smokeHand.position.set(.38,-.34,-.72);smokePuffs.forEach(p=>{p.visible=false;p.material.opacity=0})}
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
 const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
@@ -185,6 +197,12 @@ for(const x of [buildX-8,buildX-5,buildX+5,buildX+8])for(const z of [buildZ-6,bu
 for(const y of [1.2,2.5]){box(scene,buildX,y,buildZ-6,16,.1,.1,scaffold);box(scene,buildX,y,buildZ+6,16,.1,.1,scaffold)}
 for(let i=0;i<6;i++)box(scene,buildX-5+i*.55,.35,buildZ+8,.48,.65,.42,brick);
 box(scene,buildX+5,.45,buildZ+8,2,.8,1.3,mat(0xb6a18a));box(scene,buildX+5,1.1,buildZ+8,2.1,.18,1.4,mat(0x6d6d68));
+const progressingBricks=[];
+for(let row=0;row<4;row++)for(let col=0;col<7;col++){
+ const b=box(scene,buildX-6.72,.38+row*.48,buildZ-3.9+col*1.28,.2,.44,1.2,brick);
+ b.visible=false;progressingBricks.push(b);
+}
+let constructionProgress=0,constructionWorkClock=0;
 const workers=[];
 for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);cyl(w,0,1.15,0,.22,.25,.72,pants,10);box(w,0,1.78,0,.5,.72,.28,shirt);cyl(w,0,2.35,0,.2,.2,.38,skin,10);cyl(w,0,2.58,0,.27,.27,.16,mat(0xd0a23b),12);box(w,0,2.08,.22,.08,.55,.08,skin);box(w,0,2.08,-.22,.08,.55,.08,skin);workers.push({mesh:w,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
 
@@ -359,7 +377,7 @@ const keys={};
 function refuelVehicle(){if(!active)return;const d=Math.hypot(active.position.x-stationX,active.position.z-(stationZ-5.1));if(d>9){hint.textContent='Benzin almak için benzinlik pompalarına yaklaş';return}if(active.userData.fuel>=100){hint.textContent='Depo zaten dolu · %100';return}active.userData.refueling=!active.userData.refueling;hint.textContent=active.userData.refueling?'Benzin dolduruluyor · R ile durdur':'Benzin doldurma durduruldu';}
 let selectedFeedSlot=1;function selectFeedSlot(slot){if(slot<1||slot>5)return;selectedFeedSlot=slot;document.querySelectorAll('.invslot').forEach(s=>s.classList.remove('selected'));document.getElementById('slot'+slot).classList.add('selected');if(selectedJob==='farm')hint.textContent=slot===1?'Tavuk yemi seçildi · Tavuğa yaklaş ve F bas':slot===2?'İnek yemi seçildi · İneğe yaklaş ve F bas':'Bu slot boş';else if(selectedJob==='build')hint.textContent='Seçildi: '+document.getElementById('slotName'+slot).textContent;else hint.textContent='Önce mesleğini 9 tuşuyla seç'}
 function feedNearestAnimal(){if(selectedFeedSlot>2){hint.textContent='Önce tavuk veya inek yemini seç';return}if(active){hint.textContent='Hayvanları beslemek için araçtan in';return}let target=null,best=5,isCow=false;for(const animal of [...chickens,...cows]){const d=camera.position.distanceTo(animal.mesh.position);if(d<best){best=d;target=animal;isCow=cows.includes(animal)}}if(!target){hint.textContent='Beslemek için uygun hayvana yaklaş (5 metre)';return}if((selectedFeedSlot===2)!==isCow){hint.textContent=isCow?'Bu inek · İnek yemi için 2. slotu seç':'Bu tavuk · Tavuk yemi için 1. slotu seç';return}target.hungry=false;target.hungerLeft=60;target.pecking=false;target.peckDuration=0;target.head.rotation.x=0;hint.textContent=(isCow?'İnek':'Tavuk')+' beslendi · 60 saniye sonra tekrar acıkacak';}
-for(let i=1;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>selectFeedSlot(i));addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot(((selectedFeedSlot-1+(e.deltaY>0?1:4))%5)+1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='Digit9'||e.code==='Numpad9'){if(e.repeat)return;e.preventDefault();const opening=jobMenu.style.display!=='grid';jobMenu.style.display=opening?'grid':'none';if(opening&&document.pointerLockElement)document.exitPointerLock();return;}if(e.code==='KeyF'&&!e.repeat&&selectedJob==='farm')feedNearestAnimal();if(/^Digit[1-5]$/.test(e.code))selectFeedSlot(Number(e.code.slice(5)))});
+for(let i=1;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>selectFeedSlot(i));addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot(((selectedFeedSlot-1+(e.deltaY>0?1:4))%5)+1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='Digit9'||e.code==='Numpad9'){if(e.repeat)return;e.preventDefault();const opening=jobMenu.style.display!=='grid';jobMenu.style.display=opening?'grid':'none';if(opening&&document.pointerLockElement)document.exitPointerLock();return;}if(e.code==='KeyF'&&!e.repeat&&selectedJob==='farm')feedNearestAnimal();if((e.key==='ş'||e.key==='Ş'||e.code==='Semicolon')&&!e.repeat){e.preventDefault();startSmoking();}if(/^Digit[1-5]$/.test(e.code))selectFeedSlot(Number(e.code.slice(5)))});
 addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
 let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;const hint=document.getElementById('hint'),mode=document.getElementById('mode');
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
@@ -371,12 +389,51 @@ document.addEventListener('pointerlockerror',()=>{locked=false;hint.textContent=
 renderer.domElement.style.cursor='none';
 document.addEventListener('click',e=>{if(jobMenu.style.display==='grid'||e.target.closest('#inventory,button'))return;if(document.pointerLockElement!==renderer.domElement){try{const result=renderer.domElement.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});}catch(err){hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';}}},true);
 document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
-function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;const h=inside(-13,-10,6.5,4.5)&&!(Math.abs(x+10)<1.25&&z>-7.35&&z<-4.45);const g=inside(1.5,-10,4.5,4.5)&&!(Math.abs(x-1.5)<3.65&&z>-7.35&&z<-4.45);if(h||g)return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
-function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
+function blocked(x,z,r=.38){
+ const hit=(ax,az,bx,bz)=>{if(Math.abs(ax-bx)<.001)return Math.abs(x-ax)<r+.14&&z>Math.min(az,bz)-r&&z<Math.max(az,bz)+r;return Math.abs(z-az)<r+.14&&x>Math.min(ax,bx)-r&&x<Math.max(ax,bx)+r};
+ // Evin dış duvarları: kapı boşluğu açık bırakılır.
+ if(hit(-19.45,-14.5,-19.45,-5.5)||hit(-6.55,-14.5,-6.55,-5.5)||hit(-19.5,-14.45,-6.5,-14.45))return true;
+ if(hit(-19.5,-5.55,-11.42,-5.55)||hit(-10.08,-5.55,-6.5,-5.55))return true;
+ // Evin oda ayırıcı duvarları ve geçiş boşlukları.
+ if(hit(-12.25,-14.4,-12.25,-12.3)||hit(-12.25,-11.4,-12.25,-9.7))return true;
+ if(hit(-9.45,-14.4,-9.45,-12.3)||hit(-9.45,-11.4,-9.45,-9.7))return true;
+ // Garajın üç kapalı duvarı; ön taraf kepenk açıldığında tamamen geçilebilir.
+ if(hit(-2.95,-14.5,-2.95,-5.5)||hit(5.95,-14.5,5.95,-5.5)||hit(-3,-14.45,6,-14.45))return true;
+ // Köy yolu kenarı.
+ if(z>9.25&&z<10.9&&x>-31&&x<31)return true;
+ return false;
+}
+function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){smoking=false;smokeHand.visible=false;active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
 for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;}
+if(constructionProgress<progressingBricks.length){
+ constructionWorkClock+=dt;
+ if(constructionWorkClock>=1.65){
+  constructionWorkClock=0;
+  const count=Math.min(progressingBricks.length,constructionProgress+1);
+  progressingBricks[constructionProgress].visible=true;constructionProgress=count;
+ }
+}
+if(smoking){
+ smokeTime+=dt;
+ const lift=smokeTime<1.15?Math.sin(Math.min(1,smokeTime/1.15)*Math.PI/2):1;
+ smokeHand.position.set(.38+Math.sin(smokeTime*2)*.012,-.34+lift*.19,-.72);
+ smokeHand.rotation.x=smokeTime<1.15?-.12:smokeTime<2.5?.08:-.08;
+ smokePuffClock-=dt;
+ if(smokeTime>1.05&&smokeTime<3.35&&smokePuffClock<=0){
+  smokePuffClock=.22;const puff=smokePuffs[Math.floor(Math.random()*smokePuffs.length)];
+  puff.visible=true;puff.position.set(.13,.19,-.49);puff.userData.life=0;
+ }
+ for(const puff of smokePuffs){
+  if(!puff.visible)continue;puff.userData.life=(puff.userData.life||0)+dt;
+  puff.position.y+=dt*.42;puff.position.x+=Math.sin(gameTime*3+puff.id)*dt*.06;
+  puff.scale.multiplyScalar(1+dt*.55);puff.material.opacity=Math.max(0,.28-puff.userData.life*.18);
+  if(puff.userData.life>1.5){puff.visible=false;puff.material.opacity=0;puff.scale.setScalar(1)}
+ }
+ if(smokeTime>=4.2){smoking=false;smokeHand.visible=false;smokeHand.rotation.set(0,0,0)}
+}
 const nearHouseDoor=!active&&Math.hypot(camera.position.x+10,camera.position.z+5.4)<3.2;const nearGarageDoor=!active&&Math.hypot(camera.position.x-1.5,camera.position.z+5.4)<5.2;houseDoor.rotation.y+=(nearHouseDoor?-1.35-houseDoor.rotation.y:0-houseDoor.rotation.y)*Math.min(1,dt*3.5);garageDoor.position.y+=(nearGarageDoor?4.05:.08-garageDoor.position.y)*Math.min(1,dt*2.2);if(!active&&(nearHouseDoor||nearGarageDoor))hint.textContent=nearHouseDoor?'Kapı açılıyor · Eve girmek için içeri yürü':'Garaj kapısı açılıyor';
 // Yolda aynı anda 2-4 araç bulunur; araç tipleri ve hızları rastgele seçilir.
 trafficChangeClock-=dt;
