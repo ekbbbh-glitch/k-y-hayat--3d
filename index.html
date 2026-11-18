@@ -10,6 +10,10 @@
 #hint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:#18251dcc;padding:12px 18px;border-radius:10px;font-size:14px;text-align:center}
 #cross{position:absolute;left:50%;top:50%;width:8px;height:8px;border:1px solid #fff;border-radius:50%;transform:translate(-50%,-50%);opacity:.8}
 #start{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(#10251c88,#10251ccc);color:#fff;text-align:center;z-index:5}
+#inventory{position:fixed;right:18px;bottom:18px;display:flex;gap:7px;z-index:8;pointer-events:auto;text-shadow:none}
+.invslot{width:58px;height:62px;border:2px solid #d7d0b7;border-radius:9px;background:#17251ddd;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 3px 10px #0007}
+.invslot.selected{border:3px solid #f0c65e;background:#4b4025ee}.invslot .item{font-size:23px;line-height:27px}.invslot .count{font-size:10px;color:#f3d77e}
+#chickenLabels{position:fixed;inset:0;pointer-events:none;z-index:4}.chicken-label{position:absolute;transform:translate(-50%,-100%);padding:3px 6px;border-radius:5px;background:#17251ddd;color:#fff;font-size:11px;white-space:nowrap;text-shadow:none}.chicken-label.hungry{background:#8b3429}
 #panel{max-width:520px;padding:30px;background:#17251ddd;border:1px solid #ffffff33;border-radius:18px;box-shadow:0 18px 60px #0006}
 button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}
 small{color:#d8e2d6;line-height:1.7}
@@ -17,7 +21,7 @@ small{color:#d8e2d6;line-height:1.7}
 </head>
 <body>
 <div id="start"><div id="panel"><h1>🌿 KÖY HAYATI 3D</h1><p>Güneşli bir Anadolu köyünde yeni hayatın başlıyor.</p><p><button id="play">KÖYE GİR</button></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
-<div id="hud"><div id="brand">KÖY HAYATI 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="hint">WASD ile yürü · E ile araçlara yaklaş</div></div>
+<div id="hud"><div id="brand">KÖY HAYATI 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span>Yem</span><span class="count">∞</span></div><div class="invslot" id="slot2"><span class="item">—</span><span>Boş</span></div><div class="invslot" id="slot3"><span class="item">—</span><span>Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span>Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span>Boş</span></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -194,11 +198,15 @@ for(let i=0;i<9;i++){
   for(let t=0;t<3;t++){const tail=new THREE.Mesh(new THREE.ConeGeometry(.1,.32,6),plumage);tail.rotation.x=-Math.PI/2;tail.position.set((t-1)*.13,.58,-.39);hen.add(tail)}
   hen.position.set(4+Math.random()*9,0,-24-Math.random()*10);
   hen.rotation.y=Math.random()*Math.PI*2;scene.add(hen);
-  chickens.push({mesh:hen,angle:Math.random()*Math.PI*2,speed:.45+Math.random()*.5,turnIn:Math.random()*3,phase:Math.random()*Math.PI*2});
+  const label=document.createElement("div");label.className="chicken-label";document.getElementById("chickenLabels").appendChild(label);
+  chickens.push({mesh:hen,head,label,angle:Math.random()*Math.PI*2,speed:.45+Math.random()*.5,turnIn:Math.random()*3,phase:Math.random()*Math.PI*2,hungry:false,hungerLeft:20+Math.random()*40,peckClock:Math.random()*2,pecking:false,peckDuration:0});
 }
 // courtyard clutter and barrels
 for(let i=0;i<5;i++){cyl(scene,-3+i*.75,.55,-3,.32,.32,1.1,i%2?M.red:M.yellow,12)}
 // controls
+const keys={};
+function feedNearestChicken(){if(active){hint.textContent='Tavukları beslemek için araçtan in';return}let target=null,best=5;for(const hen of chickens){const d=camera.position.distanceTo(hen.mesh.position);if(d<best){best=d;target=hen}}if(!target){hint.textContent='Beslemek için bir tavuğa yaklaş (5 metre)';return}target.hungry=false;target.hungerLeft=60;target.pecking=false;target.peckDuration=0;target.head.rotation.x=0;hint.textContent='Tavuk beslendi · 60 saniye sonra tekrar acıkacak';}
+document.getElementById('slot1').addEventListener('click',()=>{document.querySelectorAll('.invslot').forEach(s=>s.classList.remove('selected'));document.getElementById('slot1').classList.add('selected');hint.textContent='Sınırsız tavuk yemi seçildi · Tavuğa yaklaş ve F bas'});for(let i=2;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>{hint.textContent='Bu envanter slotu boş'});addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat)feedNearestChicken();if(e.code==='Digit1')document.getElementById('slot1').click()});
 const keys={};addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
 let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;const start=document.getElementById('start'),hint=document.getElementById('hint'),mode=document.getElementById('mode');
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
@@ -212,6 +220,18 @@ function interact(){if(active){const leaving=active;externalView=false;const exi
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
+// Açlık sayaçları ve rastgele zamanlarda çim gagalayıp yeme animasyonu.
+for(const hen of chickens){
+ if(!hen.hungry){hen.hungerLeft-=dt;if(hen.hungerLeft<=0){hen.hungry=true;hen.hungerLeft=0;hen.peckClock=.2+Math.random()*2;}}
+ if(hen.hungry){hen.peckClock-=dt;if(hen.peckClock<=0&&!hen.pecking){hen.pecking=true;hen.peckDuration=.8+Math.random()*.8;hen.peckClock=1.5+Math.random()*4;}}
+ if(hen.pecking){hen.peckDuration-=dt;hen.head.rotation.x=-.85+Math.sin(gameTime*18+hen.phase)*.12;if(hen.peckDuration<=0){hen.pecking=false;hen.head.rotation.x=0;}}
+ else if(!hen.hungry){hen.head.rotation.x=Math.sin(gameTime*2+hen.phase)*.035;}
+ const p=hen.mesh.position.clone();p.y+=1.35;p.project(camera);const lx=(p.x*.5+.5)*innerWidth,ly=(-p.y*.5+.5)*innerHeight;
+ const visible=p.z>-1&&p.z<1&&lx>0&&lx<innerWidth&&ly>0&&ly<innerHeight;
+ hen.label.style.display=visible?'block':'none';hen.label.style.left=lx+'px';hen.label.style.top=ly+'px';
+ const secs=Math.max(0,Math.ceil(hen.hungerLeft));const t=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');
+ hen.label.classList.toggle('hungry',hen.hungry);hen.label.textContent=hen.hungry?'AÇ · F ile besle':'TOK · '+t;
+}
 // Tavuklar ayrı hız ve yönlerle bahçede gezinir; sınıra gelince yön değiştirir.
 for(const hen of chickens){
   hen.turnIn-=dt;
