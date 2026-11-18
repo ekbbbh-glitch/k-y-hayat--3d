@@ -168,7 +168,7 @@ function spawnTraffic(direction,x){
   v.rotation.y=direction===1?Math.PI/2:-Math.PI/2;
   const scale=type==='grader'?.78:type==='tractor'?.82:.86;
   v.scale.setScalar(scale);
-  v.userData.traffic={direction,speed:4.2+Math.random()*3.4};
+  v.userData.traffic={direction,speed:4.2+Math.random()*3.4,phase:'road',stopChance:Math.random()<.32,wait:0,pumpX:stationX+(direction===1?-3.6:3.6)};
   trafficVehicles.push(v);
   return v;
 }
@@ -317,15 +317,46 @@ while(trafficVehicles.length>trafficTarget){
 }
 for(const v of trafficVehicles){
   const traffic=v.userData.traffic;
-  v.position.x+=traffic.direction*traffic.speed*dt;
-  if(traffic.direction===1&&v.position.x>96){
-    v.position.x=-96-Math.random()*18;
-    v.position.z=17.15;
-    traffic.speed=4.2+Math.random()*3.4;
-  }else if(traffic.direction===-1&&v.position.x< -96){
-    v.position.x=96+Math.random()*18;
-    v.position.z=20.85;
-    traffic.speed=4.2+Math.random()*3.4;
+  if(traffic.phase==='road'){
+    const oldX=v.position.x;
+    const nextX=oldX+traffic.direction*traffic.speed*dt;
+    const stationPass=traffic.direction===1?(oldX<stationX-5&&nextX>=stationX-5):(oldX>stationX+5&&nextX<=stationX+5);
+    if(traffic.stopChance&&stationPass){
+      traffic.phase='enter';
+      traffic.stopChance=false;
+      traffic.targetZ=stationZ-5.8;
+      traffic.speed=5.2;
+    }else{
+      v.position.x=nextX;
+      if(traffic.direction===1&&v.position.x>96){
+        v.position.x=-96-Math.random()*18;
+        v.position.z=17.15;
+        traffic.speed=4.2+Math.random()*3.4;
+        traffic.stopChance=Math.random()<.32;
+      }else if(traffic.direction===-1&&v.position.x< -96){
+        v.position.x=96+Math.random()*18;
+        v.position.z=20.85;
+        traffic.speed=4.2+Math.random()*3.4;
+        traffic.stopChance=Math.random()<.32;
+      }
+    }
+  }
+  if(traffic.phase==='enter'||traffic.phase==='exit'){
+    const targetZ=traffic.phase==='enter'?traffic.targetZ:(traffic.direction===1?17.15:20.85);
+    const dx=traffic.pumpX-v.position.x,dz=targetZ-v.position.z;
+    const dist=Math.hypot(dx,dz);
+    if(dist<.35){
+      v.position.x=traffic.pumpX;v.position.z=targetZ;
+      if(traffic.phase==='enter'){traffic.phase='wait';traffic.wait=3;v.rotation.y=traffic.direction===1?Math.PI:0;}
+      else{traffic.phase='road';v.rotation.y=traffic.direction===1?Math.PI/2:-Math.PI/2;traffic.speed=4.2+Math.random()*3.4;}
+    }else{
+      const step=Math.min(dist,traffic.speed*dt);
+      v.position.x+=dx/dist*step;v.position.z+=dz/dist*step;
+      v.rotation.y=Math.atan2(dx,dz);
+    }
+  }else if(traffic.phase==='wait'){
+    traffic.wait-=dt;
+    if(traffic.wait<=0){traffic.phase='exit';traffic.speed=5.2;}
   }
 }
 // Açlık sayaçları ve rastgele zamanlarda çim gagalayıp yeme animasyonu.
