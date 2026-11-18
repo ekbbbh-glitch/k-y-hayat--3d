@@ -122,6 +122,36 @@ g.userData={type,drive:false,cabin,wheelGroup,pedals};return g}
 const vehicles=[vehicle('tractor',9,-.7,0xa43124),vehicle('grader',17,-.8,0xb38b2c),vehicle('truck',27,-.6,0x9c3027),vehicle('car',-21,2,0xc9c8bd)];
 // trailer behind truck
 box(vehicles[2],0,1,-3.7,3.2,1.8,3.8,mat(0x9b3027));for(const s of [-1,1])for(const z of [-4.7,-2.7]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.32,14),M.rubber);w.rotation.z=Math.PI/2;w.position.set(s*1.55,.48,z);vehicles[2].add(w)}
+
+// Oyun alanının önündeki çift yönlü asfalt köy yolu.
+const roadMat=mat(0x343735),roadLine=mat(0xe7e2cf);
+box(scene,0,.015,19,190,.12,8,roadMat);
+box(scene,0,.095,15.08,190,.055,.13,roadLine);
+box(scene,0,.095,22.92,190,.055,.13,roadLine);
+// İki yönü ayıran kesikli orta çizgi.
+for(let x=-91;x<92;x+=8)box(scene,x,.096,19,4.2,.055,.12,roadLine);
+const trafficVehicles=[];
+const trafficTypes=['car','truck','tractor','grader'];
+const trafficColors=[0xc33b2e,0xd4d0c2,0x315d83,0x477345,0xb68b32,0x4b4540];
+function spawnTraffic(direction,x){
+  const type=trafficTypes[Math.floor(Math.random()*trafficTypes.length)];
+  const color=trafficColors[Math.floor(Math.random()*trafficColors.length)];
+  const laneZ=direction===1?17.15:20.85;
+  const v=vehicle(type,x,laneZ,color);
+  v.rotation.y=direction===1?Math.PI/2:-Math.PI/2;
+  const scale=type==='grader'?.78:type==='tractor'?.82:.86;
+  v.scale.setScalar(scale);
+  v.userData.traffic={direction,speed:4.2+Math.random()*3.4};
+  trafficVehicles.push(v);
+  return v;
+}
+let trafficTarget=2+Math.floor(Math.random()*3);
+let trafficChangeClock=26+Math.random()*18;
+for(let i=0;i<trafficTarget;i++){
+  const direction=Math.random()<.5?1:-1;
+  const startX=direction===1?-72+i*34:72-i*34;
+  spawnTraffic(direction,startX+(Math.random()-.5)*9);
+}
 // Evin arkasındaki buğday tarlası
 const fieldSoil=box(scene,-13,.035,-30,27,.12,17,mat(0x80613d));
 const cropMat=mat(0x718d35), wheatMat=mat(0xd2aa3c);
@@ -220,6 +250,33 @@ function interact(){if(active){const leaving=active;externalView=false;const exi
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
+// Yolda aynı anda 2-4 araç bulunur; araç tipleri ve hızları rastgele seçilir.
+trafficChangeClock-=dt;
+if(trafficChangeClock<=0){
+  trafficTarget=2+Math.floor(Math.random()*3);
+  trafficChangeClock=24+Math.random()*24;
+}
+while(trafficVehicles.length<trafficTarget){
+  const direction=Math.random()<.5?1:-1;
+  spawnTraffic(direction,direction===1?-94:94);
+}
+while(trafficVehicles.length>trafficTarget){
+  const removed=trafficVehicles.pop();
+  scene.remove(removed);
+}
+for(const v of trafficVehicles){
+  const traffic=v.userData.traffic;
+  v.position.x+=traffic.direction*traffic.speed*dt;
+  if(traffic.direction===1&&v.position.x>96){
+    v.position.x=-96-Math.random()*18;
+    v.position.z=17.15;
+    traffic.speed=4.2+Math.random()*3.4;
+  }else if(traffic.direction===-1&&v.position.x< -96){
+    v.position.x=96+Math.random()*18;
+    v.position.z=20.85;
+    traffic.speed=4.2+Math.random()*3.4;
+  }
+}
 // Açlık sayaçları ve rastgele zamanlarda çim gagalayıp yeme animasyonu.
 for(const hen of chickens){
  if(!hen.hungry){hen.hungerLeft-=dt;if(hen.hungerLeft<=0){hen.hungry=true;hen.hungerLeft=0;hen.peckClock=.2+Math.random()*2;}}
