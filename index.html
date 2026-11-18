@@ -148,6 +148,54 @@ function addTrailerWheat(){
   grain.rotation.y=(n%7)*.37;
   grain.castShadow=true;trailer.add(grain);
 }
+// Tavuk bahçesi: tarlanın yanında çitlerle çevrili gezinti alanı ve kümes.
+const penCenterX=9,penCenterZ=-30,penHalfW=7,penHalfD=8;
+const penGround=box(scene,penCenterX,.025,penCenterZ,14,.08,16,mat(0x9b8056));
+// Çevre çiti, kapı boşluğu ve ahşap direkler.
+for(const x of [2,5,8,11,14,16]){
+  for(const z of [-38,-22])box(scene,x,.62,z,.14,1.24,.14,M.wood);
+}
+for(const z of [-38,-35,-32,-29,-26,-23]){
+  for(const x of [2,16])box(scene,x,.62,z,.14,1.24,.14,M.wood);
+}
+for(const y of [.38,.82]){
+  box(scene,9,y,-38,14,.1,.12,M.wood);
+  box(scene,9,y,-22,14,.1,.12,M.wood);
+  box(scene,2,y,-30,.12,.1,16,M.wood);
+  box(scene,16,y,-30,.12,.1,16,M.wood);
+}
+// Kümes: küçük ahşap yapı, kırmızı çatı, giriş ve folluk.
+box(scene,12.1,.85,-35.2,3.4,1.7,2.5,mat(0x9a7045));
+const coopRoof=new THREE.Mesh(new THREE.ConeGeometry(2.35,.95,4),M.roof);
+coopRoof.scale.set(1,.8,.75);coopRoof.rotation.y=Math.PI/4;coopRoof.position.set(12.1,2.05,-35.2);coopRoof.castShadow=true;scene.add(coopRoof);
+box(scene,12.1,.55,-33.92,.85,1.05,.12,M.dark);
+box(scene,10.15,1.05,-35.2,.55,.62,.5,mat(0x68452c));
+box(scene,10.15,1.4,-35.2,.62,.1,.56,M.wood);
+// Birbirinden bağımsız renk ve hareketlere sahip tavuklar.
+const chickens=[];
+const chickenColors=[0xf1e8d2,0xb66a32,0x8d8170,0xd7bd82,0xeeeeea,0x65452f,0xc7a36b,0xa83e2d];
+for(let i=0;i<9;i++){
+  const hen=new THREE.Group();
+  const plumage=mat(chickenColors[i%chickenColors.length]);
+  const body=new THREE.Mesh(new THREE.SphereGeometry(1,12,9),plumage);
+  body.scale.set(.34,.25,.46);body.position.y=.43;hen.add(body);
+  const breast=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),plumage);
+  breast.position.set(0,.48,.27);hen.add(breast);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.17,10,8),plumage);
+  head.position.set(0,.76,.28);hen.add(head);
+  const comb=mat(0xb52e25),beak=mat(0xd99a32),eye=mat(0x171411);
+  const crest=new THREE.Mesh(new THREE.SphereGeometry(.075,8,6),comb);crest.position.set(0,.94,.27);hen.add(crest);
+  const beakMesh=new THREE.Mesh(new THREE.ConeGeometry(.075,.19,5),beak);beakMesh.rotation.x=Math.PI/2;beakMesh.position.set(0,.72,.47);hen.add(beakMesh);
+  for(const side of [-1,1]){
+    const e=new THREE.Mesh(new THREE.SphereGeometry(.025,6,6),eye);e.position.set(side*.13,.79,.405);hen.add(e);
+    const wing=new THREE.Mesh(new THREE.SphereGeometry(1,9,7),plumage);wing.scale.set(.12,.16,.28);wing.position.set(side*.29,.48,.02);hen.add(wing);
+    const leg=cyl(hen,side*.12,.16,.04,.035,.035,.28,beak,8);leg.position.y=.16;
+  }
+  for(let t=0;t<3;t++){const tail=new THREE.Mesh(new THREE.ConeGeometry(.1,.32,6),plumage);tail.rotation.x=-Math.PI/2;tail.position.set((t-1)*.13,.58,-.39);hen.add(tail)}
+  hen.position.set(4+Math.random()*9,0,-24-Math.random()*10);
+  hen.rotation.y=Math.random()*Math.PI*2;scene.add(hen);
+  chickens.push({mesh:hen,angle:Math.random()*Math.PI*2,speed:.45+Math.random()*.5,turnIn:Math.random()*3,phase:Math.random()*Math.PI*2});
+}
 // courtyard clutter and barrels
 for(let i=0;i<5;i++){cyl(scene,-3+i*.75,.55,-3,.32,.32,1.1,i%2?M.red:M.yellow,12)}
 // controls
@@ -164,6 +212,17 @@ function interact(){if(active){const leaving=active;externalView=false;const exi
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
+// Tavuklar ayrı hız ve yönlerle bahçede gezinir; sınıra gelince yön değiştirir.
+for(const hen of chickens){
+  hen.turnIn-=dt;
+  if(hen.turnIn<=0){hen.angle+=(Math.random()-.5)*2.2;hen.speed=.35+Math.random()*.65;hen.turnIn=1.2+Math.random()*3.5;}
+  const nx=hen.mesh.position.x+Math.sin(hen.angle)*hen.speed*dt;
+  const nz=hen.mesh.position.z+Math.cos(hen.angle)*hen.speed*dt;
+  if(nx<2.7||nx>15.3||nz< -37.2||nz> -22.8){hen.angle+=Math.PI+(Math.random()-.5)*.8;hen.turnIn=.5;}
+  else{hen.mesh.position.x=nx;hen.mesh.position.z=nz;}
+  hen.mesh.rotation.y=hen.angle;
+  hen.mesh.position.y=.025+Math.abs(Math.sin(gameTime*7+hen.phase))*.025;
+}
 for(const crop of crops){
   if(crop.harvested&&gameTime-crop.harvestedAt>=60){
     crop.harvested=false;crop.height=.16;crop.mesh.scale.y=.16;scene.add(crop.mesh);
