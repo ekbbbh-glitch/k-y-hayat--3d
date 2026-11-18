@@ -182,7 +182,7 @@ if(active.userData.type==='tractor'){
     }
   }
 }
-const steer=(keys.KeyA?1:0)-(keys.KeyD?1:0);const throttle=(keys.KeyW?1:0)-(keys.KeyS?1:0);active.rotation.y+=steer*dt*(throttle<0?-1:1);const dir=new THREE.Vector3(Math.sin(active.rotation.y),0,Math.cos(active.rotation.y));const next=active.position.clone().addScaledVector(dir,throttle*6.2*dt);if(!blocked(next.x,next.z,1.55))active.position.copy(next);active.userData.wheelGroup.rotation.z=-steer*.48;active.userData.pedals.forEach((p,i)=>{p.rotation.x=-.25+(i===1&&keys.KeyS?.28:0)+(i===2&&keys.KeyW?.32:0)});if(externalView){
+const steer=(keys.KeyA?1:0)-(keys.KeyD?1:0);const throttle=(keys.KeyW?1:0)-(keys.KeyS?1:0);active.rotation.y+=steer*dt*(throttle<0?-1:1);const dir=new THREE.Vector3(Math.sin(active.rotation.y),0,Math.cos(active.rotation.y));const next=active.position.clone().addScaledVector(dir,throttle*6.2*dt);if(!blocked(next.x,next.z,1.55))active.position.copy(next);active.userData.wheelGroup.rotation.z=-steer*.48;active.userData.pedals.forEach((p,i)=>{p.rotation.x=-.25+((i===1&&keys.KeyS)? .28:0)+((i===2&&keys.KeyW)? .32:0)});if(externalView){
   const orbitAngle=viewYawOffset;
   const offset=new THREE.Vector3(Math.sin(orbitAngle)*7,3.2,-Math.cos(orbitAngle)*7);
   camera.position.copy(active.localToWorld(offset));
