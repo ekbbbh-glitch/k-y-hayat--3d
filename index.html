@@ -92,23 +92,12 @@ for(const side of [-1,1]){
   const arm=box(cabin,side*.34,1.25,-.12,.13,.12,.42,armMat);arm.rotation.x=-.2;
   const hand=cyl(cabin,side*.25,1.36,.015,.065,.065,.11,handMat,12);hand.rotation.x=Math.PI/2;
 }
-// Pedallar ve sürücünün bacakları: kabin kamerasından aşağı bakıldığında görünür.
+// Pedallar sürücünün önünde; alt bölüm açık bırakılır, zemini ve çevreyi görebilirsin.
 const pedals=[];
 for(const px of [-.24,0,.24]){
   const p=box(cabin,px,.48,.78,.13,.055,.22,mat(0x333735));p.rotation.x=-.3;pedals.push(p);
 }
-// Koyu pantolonlu iki bacak; uyluklar koltuktan pedallara uzanır.
-const legMat=mat(0x263746), shoeMat=mat(0x242321);
-const legs=[];
-for(const side of [-1,1]){
-  const thigh=box(cabin,side*.23,.78,-.28,.32,.28,.82,legMat);
-  thigh.rotation.x=-.18;
-  const shin=box(cabin,side*.23,.48,.32,.25,.48,.28,legMat);
-  shin.rotation.x=-.16;
-  const shoe=box(cabin,side*.23,.25,.66,.29,.16,.43,shoeMat);
-  shoe.rotation.x=-.08;
-  legs.push(thigh,shin,shoe);
-}
+// Sürücü ayak boşluğu: burada bacak, kaplama veya taban paneli oluşturulmaz.
 // Koltuk ve sırtlık sürücünün arkasında.
 box(cabin,0,.88,-.72,1.05,.2,.82,mat(0x292c2a));
 box(cabin,0,1.42,-1.08,1.05,.92,.22,mat(0x303431));
