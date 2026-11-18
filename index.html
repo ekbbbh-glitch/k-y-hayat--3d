@@ -31,17 +31,8 @@ document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementByI
 </script>
 <script>
 (function(){
-  const btn=document.getElementById('play');
-  btn.addEventListener('click',function(){
-    if(window.__gameReady!==true){
-      document.getElementById('start').style.display='none';
-      let panel=document.getElementById('bootError');
-      if(panel){
-        panel.style.cssText='position:fixed;z-index:100;left:50%;top:18px;transform:translateX(-50%);display:block;background:#641f1f;color:white;padding:16px 20px;border:2px solid #ffb3a8;border-radius:12px;max-width:min(90vw,650px);font:bold 15px Arial;text-align:center';
-        panel.textContent='OYUN MOTORU AÇILMADI. '+(window.__gameInitError||'3D oyun dosyası yüklenemedi. Sayfayı yenileyip tekrar dene.');
-      }
-    }
-  },true);
+  // Oyun motoru hazır değilken başlangıç ekranını gizleme.
+  // Aksi halde kullanıcı erken tıklarsa buton kaybolur ve oyuna tekrar başlanamaz.
   window.addEventListener('error',function(e){
     window.__gameInitError=e.message||'JavaScript yükleme hatası';
     const panel=document.getElementById('bootError');
