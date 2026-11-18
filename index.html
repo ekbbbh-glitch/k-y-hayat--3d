@@ -75,18 +75,31 @@ else if(type==='grader'){box(g,0,1,0,2.5,.7,4.6,body);box(g,0,2,-.8,1.55,1.3,1.7
 else if(type==='truck'){box(g,0,.95,-.2,2.8,1.4,4.2,body);box(g,0,1.8,1.25,2.6,1.7,1.5,M.glass);box(g,0,2.8,-.4,2.9,.18,3.7,M.red);for(const s of [-1,1])for(const zz of [-1.5,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.58,.58,.42,16),wheel);w.rotation.z=Math.PI/2;w.position.set(s*1.35,.58,zz);g.add(w)}}
 else{box(g,0,.8,0,2.2,.65,4.2,body);box(g,0,1.45,-.35,1.85,1.0,2.15,M.glass);box(g,0,1.1,2.05,1.9,.35,.12,M.dark);for(const s of [-1,1])for(const zz of [-1.35,1.35]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.28,16),wheel);w.rotation.z=Math.PI/2;w.position.set(s*1.08,.42,zz);g.add(w)}}
 const cabin=new THREE.Group();g.add(cabin);
-box(cabin,0,1.65,.82,2.05,.34,.34,mat(0x292b2a));
-box(cabin,0,1.82,.79,1.75,.08,.25,mat(0x454846));
-for(const sx of [-.62,.62]){box(cabin,sx,1.68,.59,.32,.12,.06,mat(0x111817));for(let k=0;k<3;k++)box(cabin,sx-.1+k*.1,1.68,.55,.025,.09,.025,mat(0x9aa39b))}
-box(cabin,0,1.67,.55,.42,.12,.08,mat(0x161b1a));
-const wheelGroup=new THREE.Group();wheelGroup.position.set(0,1.72,.28);cabin.add(wheelGroup);
-const steering=new THREE.Mesh(new THREE.TorusGeometry(.34,.045,8,24),mat(0x171918));steering.rotation.x=Math.PI/2;wheelGroup.add(steering);
-const hub=cyl(wheelGroup,0,0,0,.09,.09,.09,mat(0x555a56),16);hub.rotation.x=Math.PI/2;
-for(let k=0;k<3;k++){const a=k*Math.PI*2/3;const spoke=box(wheelGroup,Math.sin(a)*.16,Math.cos(a)*.16,0,.045,.34,.045,mat(0x252927));spoke.rotation.z=-a}
+// Ön konsol: sürücünün görüşünü kapatmayacak alçak konum.
+box(cabin,0,1.12,.72,2.0,.28,.48,mat(0x292b2a));
+box(cabin,0,1.29,.68,1.7,.07,.35,mat(0x454846));
+for(const sx of [-.62,.62]){
+  box(cabin,sx,1.3,.66,.34,.035,.22,mat(0x111817));
+  for(let k=0;k<3;k++)box(cabin,sx-.1+k*.1,1.32,.54,.025,.07,.025,mat(0x9aa39b));
+}
+// Dikey, yuvarlak ve sürücünün tam önünde direksiyon.
+const wheelGroup=new THREE.Group();wheelGroup.position.set(0,1.36,.12);cabin.add(wheelGroup);
+const steering=new THREE.Mesh(new THREE.TorusGeometry(.31,.035,10,32),mat(0x171918));wheelGroup.add(steering);
+const hub=cyl(wheelGroup,0,0,0,.075,.075,.09,mat(0x555a56),16);hub.rotation.x=Math.PI/2;
+for(let k=0;k<3;k++){const ang=k*Math.PI*2/3;const spoke=box(wheelGroup,Math.sin(ang)*.145,Math.cos(ang)*.145,0,.035,.29,.035,mat(0x252927));spoke.rotation.z=-ang}
 const handMat=mat(0x9a6748),armMat=mat(0x34404a);
-for(const side of [-1,1]){const arm=box(cabin,side*.39,1.52,.46,.16,.13,.52,armMat);arm.rotation.x=-.35;cyl(cabin,side*.29,1.69,.28,.075,.075,.13,handMat,10)}
-const pedals=[];for(const px of [-.23,0,.23]){const p=box(cabin,px,.42,.54,.14,.07,.2,mat(0x333735));p.rotation.x=-.25;pedals.push(p)}
-box(cabin,0,1.02,-.35,1.15,.22,.9,mat(0x292c2a));box(cabin,0,1.48,-.72,1.15,.9,.22,mat(0x303431));
+for(const side of [-1,1]){
+  const arm=box(cabin,side*.34,1.25,-.12,.13,.12,.42,armMat);arm.rotation.x=-.2;
+  const hand=cyl(cabin,side*.25,1.36,.015,.065,.065,.11,handMat,12);hand.rotation.x=Math.PI/2;
+}
+// Pedallar görünür biçimde konsolun altında, sürücüye yakın.
+const pedals=[];
+for(const px of [-.24,0,.24]){
+  const p=box(cabin,px,.48,.78,.13,.055,.22,mat(0x333735));p.rotation.x=-.3;pedals.push(p);
+}
+// Koltuk ve sırtlık sürücünün arkasında.
+box(cabin,0,.88,-.72,1.05,.2,.82,mat(0x292c2a));
+box(cabin,0,1.42,-1.08,1.05,.92,.22,mat(0x303431));
 g.userData={type,drive:false,cabin,wheelGroup,pedals};return g}
 const vehicles=[vehicle('tractor',9,-.7,0xa43124),vehicle('grader',17,-.8,0xb38b2c),vehicle('truck',27,-.6,0x9c3027),vehicle('car',-21,2,0xc9c8bd)];
 // trailer behind truck
@@ -105,7 +118,7 @@ document.addEventListener('mousemove',e=>{if(!locked)return;yaw-=e.movementX*.00
 function blocked(x,z,r=.4){const inside=(cx,cz,hx,hz)=>Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r;if(inside(-13,-10,6.5,4.5))return true;if(inside(1.5,-10,4.5,4.5))return true;if(z>9.25&&z<10.9&&x>-31&&x<31)return true;return false;}
 function interact(){if(active){active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · E ile tekrar binebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){active=best;yaw=best.rotation.y+Math.PI;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);if(locked){camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));let move=new THREE.Vector3();if(keys.KeyW)move.add(forward);if(keys.KeyS)move.sub(forward);if(keys.KeyD)move.add(right);if(keys.KeyA)move.sub(right);if(move.lengthSq())move.normalize();const speed=(keys.ShiftLeft?8:4.4)*dt;
-if(active){const steer=(keys.KeyA?1:0)-(keys.KeyD?1:0);const throttle=(keys.KeyW?1:0)-(keys.KeyS?1:0);active.rotation.y+=steer*dt*(throttle<0?-1:1);const dir=new THREE.Vector3(Math.sin(active.rotation.y),0,Math.cos(active.rotation.y));const next=active.position.clone().addScaledVector(dir,throttle*6.2*dt);if(!blocked(next.x,next.z,1.55))active.position.copy(next);active.userData.wheelGroup.rotation.z=steer*.48;active.userData.pedals.forEach((p,i)=>{p.rotation.x=-.25+(i===1&&keys.KeyS?.28:0)+(i===2&&keys.KeyW?.32:0)});camera.position.copy(active.localToWorld(new THREE.Vector3(0,2.12,.12)));camera.rotation.set(pitch,active.rotation.y+Math.PI,0,'YXZ');hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: araçtan in'}
+if(active){const steer=(keys.KeyD?1:0)-(keys.KeyA?1:0);const throttle=(keys.KeyW?1:0)-(keys.KeyS?1:0);active.rotation.y+=steer*dt*(throttle<0?-1:1);const dir=new THREE.Vector3(Math.sin(active.rotation.y),0,Math.cos(active.rotation.y));const next=active.position.clone().addScaledVector(dir,throttle*6.2*dt);if(!blocked(next.x,next.z,1.55))active.position.copy(next);active.userData.wheelGroup.rotation.z=-steer*.48;active.userData.pedals.forEach((p,i)=>{p.rotation.x=-.25+(i===1&&keys.KeyS?.28:0)+(i===2&&keys.KeyW?.32:0)});camera.position.copy(active.localToWorld(new THREE.Vector3(0,1.58,-1.05)));camera.rotation.set(pitch-0.045,active.rotation.y+Math.PI,0,'YXZ');hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: araçtan in'}
 else{const next=camera.position.clone().addScaledVector(move,speed);if(!blocked(next.x,next.z,.38)){camera.position.x=next.x;camera.position.z=next.z}camera.position.y=1.7;camera.position.x=Math.max(-42,Math.min(42,camera.position.x));camera.position.z=Math.max(-42,Math.min(30,camera.position.z));if(move.lengthSq()===0)hint.textContent='WASD ile yürü · E ile araçlara bin'}}
 renderer.render(scene,camera)}animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
