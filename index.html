@@ -74,11 +74,10 @@ if(type==='tractor'){box(g,0,.95,0,2.6,.75,3.5,body);box(g,0,1.9,-.45,1.65,1.3,1
 else if(type==='grader'){box(g,0,1,0,2.5,.7,4.6,body);box(g,0,2,-.8,1.55,1.3,1.7,M.glass);box(g,0,.55,.55,3,.12,1.3,M.yellow);for(const s of [-1,1])for(const zz of [-1.5,1.5]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,.4,16),wheel);w.rotation.z=Math.PI/2;w.position.set(s*1.25,.62,zz);g.add(w)}}
 else if(type==='truck'){box(g,0,.95,-.2,2.8,1.4,4.2,body);box(g,0,1.8,1.25,2.6,1.7,1.5,M.glass);box(g,0,2.8,-.4,2.9,.18,3.7,M.red);for(const s of [-1,1])for(const zz of [-1.5,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.58,.58,.42,16),wheel);w.rotation.z=Math.PI/2;w.position.set(s*1.35,.58,zz);g.add(w)}}
 else{
-  // Sürücü alt görüşünü kapatmayan alçak yan eşikler ve alçak kaporta.
-  // Orta taban ve ön kaporta üst yüzeyi açık bırakılır; zeminden çevre görünür.
-  box(g,-.98,.43,0,.16,.22,4.2,body);box(g,.98,.43,0,.16,.22,4.2,body);
-  box(g,0,.43,-1.72,1.45,.22,.96,body);
-  box(g,0,.43,1.72,1.45,.22,.96,body);
+  // Tempra'nın dış karoserisi: kapı yanları ve ön/arka gövde parçaları tam yükseklikte.
+  box(g,-.91,.8,0,.38,.65,4.2,body);box(g,.91,.8,0,.38,.65,4.2,body);
+  box(g,0,.8,-1.72,1.45,.65,.96,body);
+  box(g,0,.8,1.72,1.45,.65,.96,body);
   box(g,0,1.45,-.35,1.85,1.0,2.15,M.glass);box(g,0,1.1,2.05,1.9,.35,.12,M.dark);
   for(const s of [-1,1])for(const zz of [-1.35,1.35]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.28,16),wheel);w.rotation.z=Math.PI/2;w.position.set(s*1.08,.42,zz);g.add(w)}
 }
