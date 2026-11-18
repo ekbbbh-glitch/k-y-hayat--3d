@@ -27,6 +27,7 @@ small{color:#d8e2d6;line-height:1.7}
 window.__gameReady=false;window.__gameInitError='';window.__gameStartRequested=false;
 window.addEventListener('error',e=>{window.__gameInitError=e.message||'Bilinmeyen JavaScript hatası';const p=document.getElementById('bootError');if(p)p.textContent='OYUN HATASI: '+window.__gameInitError;});
 window.addEventListener('unhandledrejection',e=>{window.__gameInitError=String(e.reason?.message||e.reason||'Başlatma hatası');const p=document.getElementById('bootError');if(p)p.textContent='OYUN HATASI: '+window.__gameInitError;});
+window.addEventListener('error',e=>{if(e.target&&e.target.id==='gameModule'){const p=document.getElementById('bootError');if(p)p.textContent='OYUN MOTORU YÜKLENEMEDİ. İnternet bağlantısını kontrol et ve Ctrl+F5 yap.';const b=document.getElementById('play');if(b){b.textContent='YENİDEN DENE';b.onclick=()=>location.reload();}}},true);
 document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('play');b.addEventListener('click',()=>{if(!window.__gameReady){window.__gameStartRequested=true;const p=document.getElementById('bootError');if(p)p.textContent='Oyun motoru yükleniyor; hazır olur olmaz oyun başlatılacak.';}});});
 </script>
 <script>
@@ -41,8 +42,9 @@ document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementByI
 })();
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
-<script type="module">
+<script type="module" id="gameModule">
 import * as THREE from 'three';
+try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
@@ -533,4 +535,13 @@ const steer=(keys.KeyA?1:0)-(keys.KeyD?1:0);const throttle=active.userData.fuel>
 else{document.getElementById('fuelPanel').style.display='none';const next=camera.position.clone().addScaledVector(move,speed);if(!blocked(next.x,next.z,.38)){camera.position.x=next.x;camera.position.z=next.z}camera.position.y=1.7;camera.position.x=Math.max(-42,Math.min(42,camera.position.x));camera.position.z=Math.max(-42,Math.min(52,camera.position.z));if(move.lengthSq()===0&&!nearHouseDoor&&!nearGarageDoor)hint.textContent='WASD ile yürü · E ile araçlara bin'}}
 renderer.render(scene,camera)}animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+}catch(gameBootError){
+  window.__gameReady=false;
+  window.__gameInitError=gameBootError&&gameBootError.stack?gameBootError.stack:String(gameBootError);
+  const p=document.getElementById('bootError');
+  if(p)p.textContent='OYUN AÇILAMADI: '+(gameBootError.message||gameBootError)+' · Sayfayı Ctrl+F5 ile yenile.';
+  const b=document.getElementById('play');
+  if(b){b.textContent='YENİDEN DENE';b.onclick=()=>location.reload();}
+  console.error('Oyun başlatma hatası:',gameBootError);
+}
 </script></body></html>
