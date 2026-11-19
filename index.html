@@ -6,7 +6,7 @@
 <title>Dirmil Köyü 3D Rage Game – Ücretsiz 3D Köy Oyunu</title>
 <meta name="description" content="Dirmil Köyü 3D Rage Game: Tarayıcıda ücretsiz 3D köy yaşamı ve çiftçilik oyunu. Traktör sür, tarlaları biç, hayvanları besle, köyü keşfet ve arkadaşlarınla çevrim içi oyna.">
 <meta name="keywords" content="Dirmil Köyü 3D Rage Game, Dirmil Köyü 3D, Dirmil Köyü, Dirmil 3D oyun, 3D köy oyunu, village life game, rage game, traktör oyunu, çiftçilik oyunu, Türkçe tarayıcı oyunu">
-<meta name="author" content="Dirmil Köyü 3D">
+<meta name="author" content="Rage Game">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#71894c">
 <meta property="og:type" content="website">
@@ -28,7 +28,9 @@
   "genre": ["Simulation", "Farming", "Life Simulation"],
   "gamePlatform": ["Web Browser", "Desktop", "Mobile"],
   "inLanguage": "tr",
-  "applicationCategory": "Game"
+  "applicationCategory": "Game",
+  "author": {"@type": "Organization", "name": "Rage Game"},
+  "publisher": {"@type": "Organization", "name": "Rage Game"}
 }
 </script>
 <style>
@@ -67,7 +69,7 @@ small{color:#d8e2d6;line-height:1.7}
 </style>
 </head>
 <body>
-<div id="jobMenu"><div id="panel"><h1>🌿 MESLEK SEÇİMİ</h1><p>Mesleğini seç. Menü 9 tuşuyla açılır ve kapanır.</p><div class="jobChoices"><button id="jobFarm" class="job active">🌾 ÇİFTÇİLİK</button><button id="jobBuild" class="job">🧱 İŞÇİLİK</button></div><p id="jobDescription">Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.</p><p><small>Bir meslek seçmek için seçeneklerden birine tıkla.</small></p><p id="bootError" style="color:#ffb3a8;font-weight:bold;max-width:440px"></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
+<div id="jobMenu"><div id="panel"><h1>🌿 MESLEK SEÇİMİ</h1><p style="margin:0 0 14px;color:#f2d28b;font-weight:bold;letter-spacing:2px">YAPIMCI: RAGE GAME</p><p>Mesleğini seç. Menü 9 tuşuyla açılır ve kapanır.</p><div class="jobChoices"><button id="jobFarm" class="job active">🌾 ÇİFTÇİLİK</button><button id="jobBuild" class="job">🧱 İŞÇİLİK</button></div><p id="jobDescription">Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.</p><p><small>Bir meslek seçmek için seçeneklerden birine tıkla.</small></p><p id="bootError" style="color:#ffb3a8;font-weight:bold;max-width:440px"></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
 <div id="performanceHud">FPS <b id="fpsValue">--</b> · <b id="msValue">--</b> ms</div><div id="hud"><div id="brand">DİRMİL KÖYÜ 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
 <script>
 window.__gameReady=false;window.__gameInitError='';window.__gameStartRequested=false;
