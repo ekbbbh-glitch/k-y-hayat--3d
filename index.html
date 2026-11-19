@@ -529,7 +529,7 @@ window.__gameReady=true;setInventoryForJob();jobMenu.style.display='none';hint.t
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;document.body.style.setProperty('cursor',locked?'none':'auto','important');if(locked)hint.textContent=active?'Fare kilitlendi · C: dış kamera · E: in':'Fare kilitlendi · WASD ile yürü · E ile araca bin · ESC: bırak';});
 document.addEventListener('pointerlockerror',()=>{locked=false;hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});
 renderer.domElement.style.cursor='none';
-document.addEventListener('click',e=>{if(jobMenu.style.display==='grid'||e.target.closest('#inventory,button'))return;if(document.pointerLockElement!==renderer.domElement){try{const result=renderer.domElement.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});}catch(err){hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';}}},true);
+document.addEventListener('click',e=>{if(isMobileDevice||jobMenu.style.display==='grid'||e.target.closest('#inventory,button'))return;if(document.pointerLockElement!==renderer.domElement){try{const result=renderer.domElement.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';});}catch(err){hint.textContent='Fare kilidi açılamadı · Oyun alanına tekrar tıkla';}}},true);
 document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOffset-=e.movementX*.0022;else yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.1,Math.min(1.1,pitch))});
 // Mobil cihaz algılama ve sanal kontroller. Masaüstü klavye/fare akışı değişmez.
 const isMobileDevice=('ontouchstart'in window)||navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
@@ -559,7 +559,7 @@ function blocked(x,z,r=.38){
   }
  }
  // Park edilmiş araçlar ve diğer makineler: içlerinden yürünemez.
- for(const v of vehicles){if(v===active||v.userData.traffic)continue;const dx=x-v.position.x,dz=z-v.position.z;if(Math.abs(dx)<1.65+r&&Math.abs(dz)<2.45+r)return true;}
+ for(const v of vehicles){if(v===active)continue;const dx=x-v.position.x,dz=z-v.position.z;if(Math.abs(dx)<1.65+r&&Math.abs(dz)<2.45+r)return true;}
  // Köy yolu kenarı.
  if(z>9.25&&z<10.9&&x>-31&&x<31)return true;
  return false;
@@ -576,7 +576,7 @@ const villageBuildings=[];const villageDoors=[];
 function villageBuilding(x,z,w,d,wallColor,roofColor,label){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
  // Dört duvarı ayrı kur: ön yüzde kapı boşluğu bırakılır.
- const t=.28,front=d/2;
+ const t=.28,front=d/2;g.userData.frontZ=front;
  box(g,0,.12,0,w,.24,d,mat(0x8b806d));
  box(g,-w/2+t/2,1.8,0,t,3.6,d,mat(wallColor));box(g,w/2-t/2,1.8,0,t,3.6,d,mat(wallColor));
  box(g,0,1.8,-front+t/2,w,3.6,t,mat(wallColor));
@@ -738,7 +738,7 @@ if(smoking){
  }
  if(smokeTime>=4.2){smoking=false;smokeHand.visible=false;smokeHand.rotation.set(0,0,0)}
 }
-const nearHouseDoor=!active&&Math.hypot(camera.position.x+10,camera.position.z+5.4)<3.2;const nearGarageDoor=!active&&Math.hypot(camera.position.x-1.5,camera.position.z+5.4)<5.2;houseDoor.rotation.y+=(nearHouseDoor?-1.35-houseDoor.rotation.y:0-houseDoor.rotation.y)*Math.min(1,dt*3.5);garageDoor.position.y+=(nearGarageDoor?4.05:.08-garageDoor.position.y)*Math.min(1,dt*2.2);for(const bd of villageDoors){const near=Math.hypot(camera.position.x-bd.building.position.x,camera.position.z-(bd.building.position.z+bd.building.userData.frontZ||bd.building.position.z))<2.5;bd.door.rotation.y+=(near?-1.25-bd.door.rotation.y:0-bd.door.rotation.y)*Math.min(1,dt*4)}if(!active&&(nearHouseDoor||nearGarageDoor))hint.textContent=nearHouseDoor?'Kapı açılıyor · Eve girmek için içeri yürü':'Garaj kapısı açılıyor';
+const nearHouseDoor=!active&&Math.hypot(camera.position.x+10,camera.position.z+5.4)<3.2;const nearGarageDoor=!active&&Math.hypot(camera.position.x-1.5,camera.position.z+5.4)<5.2;houseDoor.rotation.y+=(nearHouseDoor?-1.35-houseDoor.rotation.y:0-houseDoor.rotation.y)*Math.min(1,dt*3.5);garageDoor.position.y+=(nearGarageDoor?4.05:.08-garageDoor.position.y)*Math.min(1,dt*2.2);for(const bd of villageDoors){const near=Math.hypot(camera.position.x-bd.building.position.x,camera.position.z-(bd.building.position.z+bd.building.userData.frontZ))<2.5;bd.door.rotation.y+=(near?-1.25-bd.door.rotation.y:0-bd.door.rotation.y)*Math.min(1,dt*4)}if(!active&&(nearHouseDoor||nearGarageDoor))hint.textContent=nearHouseDoor?'Kapı açılıyor · Eve girmek için içeri yürü':'Garaj kapısı açılıyor';
 // Yolda aynı anda 2-4 araç bulunur; araç tipleri ve hızları rastgele seçilir.
 trafficChangeClock-=dt;
 if(trafficChangeClock<=0){
