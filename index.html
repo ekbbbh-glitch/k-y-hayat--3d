@@ -34,10 +34,10 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bc8e8;font-family:Arial,sans-serif}canvas{display:block;cursor:none!important}body{cursor:none!important}button,.invslot{cursor:pointer}
 #hud{position:fixed;inset:0;pointer-events:none;color:white;text-shadow:0 2px 4px #222}
-#brand{position:absolute;left:18px;top:16px;background:#17251c99;padding:10px 14px;border-radius:10px;font-weight:bold;letter-spacing:.4px}
+#brand{position:absolute;left:18px;top:16px;background:#17251cbb;padding:10px 14px;border-radius:10px;font-weight:bold;letter-spacing:.4px}#performanceHud{position:fixed;left:18px;top:62px;z-index:12;padding:7px 10px;border:1px solid #ffffff44;border-radius:8px;background:#101b17d9;color:#dff6d9;font:12px/1.35 ui-monospace,Consolas,monospace;text-shadow:0 1px 3px #000;pointer-events:none}#performanceHud b{color:#ffe39a}
 #hint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:#18251dcc;padding:12px 18px;border-radius:10px;font-size:14px;text-align:center}
 #cross{position:absolute;left:50%;top:50%;width:8px;height:8px;border:1px solid #fff;border-radius:50%;transform:translate(-50%,-50%);opacity:.8}
-#fuelPanel{position:fixed;left:18px;top:62px;display:none;background:#17251ddd;color:#fff;padding:10px 14px;border:1px solid #ffffff55;border-radius:9px;font-weight:bold;font-size:15px;text-shadow:0 1px 3px #000;z-index:6;pointer-events:none}#fuelPanel.low{color:#ffb19a}
+#fuelPanel{position:fixed;left:18px;top:108px;display:none;background:#17251ddd;color:#fff;padding:10px 14px;border:1px solid #ffffff55;border-radius:9px;font-weight:bold;font-size:15px;text-shadow:0 1px 3px #000;z-index:6;pointer-events:none}#fuelPanel.low{color:#ffb19a}
 #jobMenu{position:fixed;inset:0;display:none;place-items:center;background:linear-gradient(#10251c88,#10251ccc);color:#fff;text-align:center;z-index:5}
 #inventory{position:fixed;right:18px;bottom:18px;display:flex;gap:7px;z-index:8;pointer-events:auto;text-shadow:none}
 .invslot{width:58px;height:62px;border:2px solid #d7d0b7;border-radius:9px;background:#17251ddd;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 3px 10px #0007}
@@ -53,7 +53,7 @@ small{color:#d8e2d6;line-height:1.7}
 .shopgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
 .shopgrid button{font-size:14px;padding:12px;background:#d2a65b}
 #moneyHud{position:fixed;right:18px;top:16px;padding:10px 14px;background:#17251ddd;border:1px solid #ffffff55;border-radius:9px;font-weight:bold;z-index:6;color:#ffe39a;text-shadow:0 1px 3px #000}
-#worldHud{position:fixed;left:18px;top:112px;padding:8px 12px;background:#17251dcc;border-radius:8px;color:#fff;font-size:13px;z-index:6;text-shadow:0 1px 3px #000;pointer-events:none}
+#worldHud{position:fixed;left:18px;top:158px;padding:8px 12px;background:#17251dcc;border-radius:8px;color:#fff;font-size:13px;z-index:6;text-shadow:0 1px 3px #000;pointer-events:none}
 #onlinePanel{position:fixed;inset:0;display:none;place-items:center;background:#07140dcc;z-index:30;color:#fff;text-shadow:none}#onlinePanel .onlinebox{width:min(520px,92vw);background:#20372a;border:2px solid #b99a61;border-radius:18px;padding:24px;box-shadow:0 20px 70px #0009}#onlinePanel h2{color:#f2d28b;margin:0 0 10px}#onlinePanel input{width:100%;padding:13px;border-radius:9px;border:1px solid #b99a61;background:#101c15;color:#fff;font-size:20px;letter-spacing:4px;text-align:center;margin:8px 0}#onlinePanel .onlinebuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}#onlinePanel button{font-size:14px;padding:12px}#onlineStatus{font-size:13px;color:#d8e2d6;min-height:34px;line-height:1.5}#roomCode{font-size:28px;letter-spacing:5px;color:#ffe39a;font-weight:bold;text-align:center;padding:12px;background:#101c15;border-radius:10px;margin:10px 0}#toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);padding:10px 16px;background:#17251ddd;border-radius:9px;color:#fff;z-index:25;display:none;text-shadow:none}
 #mobileControls{display:none;position:fixed;inset:0;z-index:18;pointer-events:none;touch-action:none;color:white;text-shadow:0 1px 3px #000}
 #mobilePad{position:absolute;left:18px;bottom:24px;width:150px;height:150px;border-radius:50%;background:#17251d77;border:2px solid #ffffff88;pointer-events:auto;touch-action:none}
@@ -62,13 +62,13 @@ small{color:#d8e2d6;line-height:1.7}
 #mobileActions{position:absolute;right:14px;bottom:22px;display:grid;grid-template-columns:repeat(2,64px);gap:9px;pointer-events:auto}
 #mobileActions button{width:64px;height:56px;padding:4px;background:#17251ddd;color:white;border:1px solid #ffffff99;font-size:13px;touch-action:none}
 #mobileLook{position:absolute;left:34%;right:30%;top:12%;bottom:25%;pointer-events:auto;touch-action:none}
-@media(max-width:800px),(pointer:coarse){#mobileControls{display:block}#cross{display:none}#hint{bottom:190px;max-width:90vw;font-size:12px}#inventory{left:50%;right:auto;bottom:8px;transform:translateX(-50%) scale(.68);transform-origin:bottom center}#brand{top:8px;left:8px;font-size:12px;padding:7px 9px}#moneyHud{top:8px;right:8px;font-size:12px;padding:7px 9px}#worldHud{top:48px;left:8px;font-size:11px}}
+@media(max-width:800px),(pointer:coarse){#mobileControls{display:block}#cross{display:none}#hint{bottom:190px;max-width:90vw;font-size:12px}#inventory{left:50%;right:auto;bottom:8px;transform:translateX(-50%) scale(.68);transform-origin:bottom center}#brand{top:8px;left:8px;font-size:12px;padding:7px 9px}#moneyHud{top:8px;right:8px;font-size:12px;padding:7px 9px}#worldHud{top:92px;left:8px;font-size:11px}#performanceHud{top:42px;left:8px;font-size:10px;padding:5px 7px}#fuelPanel{top:128px;left:8px;font-size:12px}}
 @media(max-width:650px){.shopgrid{grid-template-columns:1fr}#inventory{transform:scale(.8);transform-origin:bottom right}}
 </style>
 </head>
 <body>
 <div id="jobMenu"><div id="panel"><h1>🌿 MESLEK SEÇİMİ</h1><p>Mesleğini seç. Menü 9 tuşuyla açılır ve kapanır.</p><div class="jobChoices"><button id="jobFarm" class="job active">🌾 ÇİFTÇİLİK</button><button id="jobBuild" class="job">🧱 İŞÇİLİK</button></div><p id="jobDescription">Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.</p><p><small>Bir meslek seçmek için seçeneklerden birine tıkla.</small></p><p id="bootError" style="color:#ffb3a8;font-weight:bold;max-width:440px"></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
-<div id="hud"><div id="brand">DİRMİL KÖYÜ 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
+<div id="performanceHud">FPS <b id="fpsValue">--</b> · <b id="msValue">--</b> ms</div><div id="hud"><div id="brand">DİRMİL KÖYÜ 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
 <script>
 window.__gameReady=false;window.__gameInitError='';window.__gameStartRequested=false;
 window.addEventListener('error',e=>{window.__gameInitError=e.message||'Bilinmeyen JavaScript hatası';const p=document.getElementById('bootError');if(p)p.textContent='OYUN HATASI: '+window.__gameInitError;});
@@ -105,8 +105,9 @@ catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenem
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
 const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,700);camera.position.set(0,1.7,10);scene.add(camera);
-const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2.25));
+const fillLight=new THREE.DirectionalLight(0xfff1d8,.55);fillLight.position.set(18,18,-24);scene.add(fillLight);
 const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-220;sun.shadow.camera.right=220;sun.shadow.camera.top=220;sun.shadow.camera.bottom=-220;scene.add(sun);
 const mat=(c,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
 const M={grass:mat(0x71894c),dirt:mat(0x9a805e),stone:mat(0x9b9587),wall:mat(0xd0c1a1),roof:mat(0x8f4933),wood:mat(0x684a30),dark:mat(0x282b29),glass:new THREE.MeshStandardMaterial({color:0x9dbbc0,roughness:.25,metalness:.15}),red:mat(0x9d3023),yellow:mat(0xb78b28),rubber:mat(0x20211f),white:mat(0xd5d3c9),green:mat(0x476b36)};
@@ -137,6 +138,8 @@ box(scene,-17.8,1.45,-10.55,3.1,2.9,.16,M.wall);box(scene,-13.2,1.45,-10.55,1.9,
 box(scene,-17,2.25,-5.28,1.5,1.8,.12,M.wood);box(scene,-17,2.25,-5.18,1.25,1.55,.08,M.glass);box(scene,-13,3.25,-5.2,2.4,1.1,.14,M.dark);box(scene,-13,3.85,-5.1,2.6,.12,.45,M.wood);for(let x=-14.1;x<=-11.9;x+=.35)box(scene,x,3.55,-4.9,.07,.6,.07,M.wood);box(scene,-7.3,2.7,-5.18,1.1,1.3,.1,M.glass);
 box(scene,-6.1,3.15,-5.15,1.15,1.6,.04,mat(0xb51f2a));cyl(scene,-6.3,3.2,-5.1,.28,.28,.025,mat(0xffffff),24);cyl(scene,-6.22,3.27,-5.07,.23,.23,.03,mat(0xb51f2a),24);
 const houseDoor=new THREE.Group();houseDoor.position.set(-10.75,0,-5.42);scene.add(houseDoor);box(houseDoor,.62,1.15,0,1.24,2.3,.16,M.wood);cyl(houseDoor,1.05,1.15,.12,.055,.055,.08,mat(0xd6b45f),12);
+makeBuildingNameplate(scene,'DİRMİL EVİ',-10.13,3.15,-5.25,4.6);
+makeBuildingNameplate(scene,'KÖY GARAJI',1.5,3.15,-5.25,5.2);
 // Salon: halı, kanepe, sehpa, televizyon ve avize.
 box(scene,-16.2,.17,-7.5,3.5,.1,2.5,mat(0x9b4433));box(scene,-16.2,.72,-7.4,3.1,.85,.48,mat(0x725044));box(scene,-16.2,1.15,-7.95,3.1,.18,.25,mat(0x725044));box(scene,-13.4,.48,-8.3,1.5,.12,.8,mat(0x68472d));box(scene,-13.4,.95,-8.75,1.25,.85,.12,M.dark);box(scene,-13.4,.95,-8.66,1.1,.68,.04,mat(0x151c20));
 cyl(scene,-15.2,3.85,-7.6,.16,.16,.25,mat(0xe2d3a8),16);for(let i=0;i<4;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),mat(0xffe6a1));b.position.set(-15.2+Math.cos(i*Math.PI/2)*.42,3.7,-7.6+Math.sin(i*Math.PI/2)*.42);scene.add(b)}
@@ -156,7 +159,15 @@ box(scene,.15,.8,-13.7,2.1,1.4,.9,mat(0x68472d));box(scene,.15,1.65,-13.7,2.2,.1
 // Tozlanmış Kuba ZG tarzı motosiklet.
 for(const x of [-1.25,1.05]){const w=new THREE.Mesh(new THREE.TorusGeometry(.43,.09,8,18),M.rubber);w.position.set(x,.48,-8.1);w.rotation.y=Math.PI/2;scene.add(w)}box(scene,-.1,.95,-8.1,1.45,.32,.48,mat(0x756b55));box(scene,-.25,1.3,-8.1,.65,.35,.48,mat(0x713b2e));box(scene,-1.15,1.15,-8.1,.55,.12,.35,M.dark);box(scene,1.05,1.2,-8.1,.45,.1,.25,M.dark);cyl(scene,-.1,.85,-7.85,.28,.28,.45,mat(0x77736a),12);
 // tree
-function tree(x,z,s=1){cyl(scene,x,2*s,z,.38*s,.55*s,4*s,M.wood);for(let i=0;i<5;i++){const t=new THREE.Mesh(new THREE.IcosahedronGeometry(2.2*s,1),mat(i%2?0x426b38:0x557b3e));t.position.set(x+(Math.random()-.5)*2*s,4.3*s+i*.35*s,z+(Math.random()-.5)*2*s);t.castShadow=true;scene.add(t)}}
+function tree(x,z,s=1){
+ // Ağaç gövdeleri yol kaplamasına taşmasın: ana ve bağlantı yolları için boş koridor bırak.
+ if(Math.abs(z-19)<6&&x>-185&&x<185)z=z<19?10.5:27.5;
+ if(Math.abs(x-65)<6&&z>-55&&z<165)x=76.5;
+ if(Math.abs(z-110)<5&&x>-4&&x<140)z=120;
+ const trunk=cyl(scene,x,2*s,z,.38*s,.55*s,4*s,M.wood);trunk.castShadow=true;
+ const greens=[mat(0x426b38),mat(0x557b3e),mat(0x668b48)];
+ for(let i=0;i<6;i++){const t=new THREE.Mesh(new THREE.IcosahedronGeometry((1.8+(i%3)*.18)*s,1),greens[i%greens.length]);t.position.set(x+(Math.random()-.5)*1.7*s,4.15*s+i*.25*s,z+(Math.random()-.5)*1.7*s);t.castShadow=true;t.receiveShadow=true;scene.add(t)}
+}
 tree(-25,1,1.35);tree(12,-1,1.1);tree(22,-18,1.4);tree(-32,-20,1.2);
 for(let x=-30;x<30;x+=2.3){box(scene,x,.55,10,.12,1.1,.12,M.wood);box(scene,x,.2,10,.18,.15,.18,M.wood)}
 box(scene,0,.7,10,62,.12,.12,M.wood);box(scene,0,.35,10,62,.12,.12,M.wood);
@@ -372,7 +383,10 @@ for(let row=0;row<4;row++)for(let col=0;col<7;col++){
 }
 let constructionProgress=0,constructionWorkClock=0;
 const workers=[];
-for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);cyl(w,0,1.15,0,.22,.25,.72,pants,10);box(w,0,1.78,0,.5,.72,.28,shirt);cyl(w,0,2.35,0,.2,.2,.38,skin,10);cyl(w,0,2.58,0,.27,.27,.16,mat(0xd0a23b),12);const armL=new THREE.Group(),armR=new THREE.Group();armL.position.set(-.27,2.05,.13);armR.position.set(.27,2.05,.13);w.add(armL,armR);box(armL,0,-.2,0,.13,.46,.14,skin);box(armR,0,-.2,0,.13,.46,.14,skin);const tool=cyl(armR,.04,-.42,.03,.025,.025,.48,mat(0x765334),8);tool.rotation.z=.2;workers.push({mesh:w,armL,armR,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
+for(let i=0;i<3;i++){const w=new THREE.Group();w.position.set(buildX-3+i*3,0,buildZ+1.5+(i%2)*1.8);scene.add(w);const skin=mat(0xb9825c),shirt=mat([0x315b83,0xd0a23b,0x47734b][i]),pants=mat(0x303a46);
+ for(const side of [-1,1])cyl(w,side*.12,.43,0,.11,.12,.82,pants,8);
+ box(w,0,1.27,0,.5,.68,.28,shirt);cyl(w,0,1.88,0,.2,.2,.38,skin,10);cyl(w,0,2.13,0,.27,.27,.16,mat(0xd0a23b),12);
+ const armL=new THREE.Group(),armR=new THREE.Group();armL.position.set(-.27,1.55,.13);armR.position.set(.27,1.55,.13);w.add(armL,armR);box(armL,0,-.2,0,.13,.46,.14,skin);box(armR,0,-.2,0,.13,.46,.14,skin);const tool=cyl(armR,.04,-.42,.03,.025,.025,.48,mat(0x765334),8);tool.rotation.z=.2;workers.push({mesh:w,armL,armR,phase:i*2,baseX:w.position.x,baseZ:w.position.z})}
 
 // Oyun alanının önündeki çift yönlü asfalt köy yolu.
 const roadMat=mat(0x343735),roadLine=mat(0xe7e2cf);
@@ -601,6 +615,13 @@ function showToast(msg){toast.textContent=msg;toast.style.display='block';toast.
 function updateMoney(){moneyValue.textContent=Math.floor(money).toLocaleString('tr-TR')}
 function spend(amount){if(money<amount){showToast('Yeterli paran yok!');return false}money-=amount;updateMoney();return true}
 const villageBuildings=[];const villageDoors=[];
+function makeBuildingNameplate(parent,label,x,y,z,width=6){
+ const canvas=document.createElement('canvas');canvas.width=768;canvas.height=128;const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#25372d';ctx.fillRect(0,0,768,128);ctx.strokeStyle='#d9b66d';ctx.lineWidth=9;ctx.strokeRect(5,5,758,118);
+ ctx.fillStyle='#fff4d7';ctx.font='bold 58px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,384,65);
+ const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+ const board=new THREE.Mesh(new THREE.PlaneGeometry(width,.72),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));board.position.set(x,y,z);parent.add(board);return board;
+}
 function villageBuilding(x,z,w,d,wallColor,roofColor,label){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
  // Dört duvarı ayrı kur: ön yüzde kapı boşluğu bırakılır.
@@ -636,6 +657,7 @@ function villageBuilding(x,z,w,d,wallColor,roofColor,label){
  villageBuildings.push({group:g,x,z,w,d,label,door});
  for(const sx of [-w*.3,w*.3]){box(g,sx,2.25,d/2+.04,1.05,.95,.1,M.glass);box(g,sx,2.25,d/2+.1,.07,1.05,.08,M.wood);box(g,sx,2.25,d/2+.1,1.12,.07,.08,M.wood)}
  const sign=box(g,0,3.1,d/2+.13,Math.min(w*.8,7),.42,.13,mat(0x8c3a27));
+ makeBuildingNameplate(g,label,0,3.12,d/2+.205,Math.min(w*.82,8));
  return g;
 }
 // 500x500 metreye yayılan yeni arazi, köy yolları ve yeni mahalle bağlantıları.
@@ -673,7 +695,12 @@ function makePet(x,z,isDog){const g=new THREE.Group(),coat=mat(isDog?0x9b7047:0x
 const pets=[makePet(42,38,true),makePet(53,40,false),makePet(91,70,true)];
 // Köy halkı: yürüyen, sohbet eden ve meydanda dolaşan NPC'ler.
 const villagers=[];
-function makeVillager(x,z,i){const g=new THREE.Group(),skin=mat([0xb9825c,0xd2a17a,0x9a6748][i%3]),shirt=mat([0x315b83,0xb94a35,0x47734b,0xb18a36][i%4]),pants=mat(0x343b43);cyl(g,0,1.05,0,.22,.24,.75,pants,9);box(g,0,1.65,0,.5,.65,.3,shirt);cyl(g,0,2.18,0,.2,.2,.36,skin,10);for(const s of [-1,1]){const arm=box(g,s*.34,1.62,0,.13,.58,.14,skin);arm.rotation.z=s*.12}g.position.set(x,0,z);scene.add(g);return {mesh:g,homeX:x,homeZ:z,phase:Math.random()*7,dir:Math.random()*6.28,speed:.35+Math.random()*.35}}
+function makeVillager(x,z,i){const g=new THREE.Group(),skin=mat([0xb9825c,0xd2a17a,0x9a6748][i%3]),shirt=mat([0x315b83,0xb94a35,0x47734b,0xb18a36][i%4]),pants=mat(0x343b43);
+ // Bacakların tabanı zemine oturur; önceki modelin ayakları yerden yukarıda kalıyordu.
+ for(const side of [-1,1])cyl(g,side*.12,.46,0,.105,.12,.86,pants,8);
+ box(g,0,1.25,0,.5,.68,.3,shirt);cyl(g,0,1.83,0,.2,.2,.36,skin,10);
+ for(const side of [-1,1]){const arm=box(g,side*.34,1.25,0,.13,.58,.14,skin);arm.rotation.z=side*.12}
+ g.position.set(x,0,z);scene.add(g);return {mesh:g,homeX:x,homeZ:z,phase:Math.random()*7,dir:Math.random()*6.28,speed:.35+Math.random()*.35}}
 for(let i=0;i<13;i++)villagers.push(makeVillager(42+Math.random()*82,35+Math.random()*55,i));
 // İkinci araç galerisi ve park alanı.
 box(scene,130,.08,103,38,.16,28,mat(0x77766b));villageBuilding(130,118,19,10,0xd5d0c3,0x4b6573,'ARAÇ GALERİSİ');
@@ -735,7 +762,8 @@ for(const [x,z] of [[35,45],[65,45],[95,45],[65,85],[110,85],[130,110],[-60,-40]
 function setWeather(){weatherParticles.forEach(p=>{p.visible=weatherMode===1||weatherMode===2});rainMud.visible=weatherMode===1;snowGround.visible=weatherMode===2;showToast('Hava durumu: '+(['Açık','Yağmur','Kar','Sis'][weatherMode]))}
 updateMoney();
 
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
+const clock=new THREE.Clock();let fpsFrames=0,fpsElapsed=0,fpsLast=performance.now();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
+ fpsFrames++;fpsElapsed+=dt;if(fpsElapsed>=.25){const fps=Math.round(fpsFrames/fpsElapsed);document.getElementById('fpsValue').textContent=fps;document.getElementById('msValue').textContent=(1000*fpsElapsed/fpsFrames).toFixed(1);fpsFrames=0;fpsElapsed=0;}
 gameTime+=dt;
 growthClock+=dt;
 updateExpandedWorld(dt);sendOnlineState(dt);
