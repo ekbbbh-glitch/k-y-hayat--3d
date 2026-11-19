@@ -18,6 +18,16 @@
 #panel{max-width:520px;padding:30px;background:#17251ddd;border:1px solid #ffffff33;border-radius:18px;box-shadow:0 18px 60px #0006}
 button{border:0;border-radius:10px;padding:13px 22px;background:#d2a65b;color:#211b12;font-weight:bold;font-size:16px;cursor:pointer}#jobMenu{cursor:auto!important}#jobMenu button{cursor:pointer!important}.jobChoices{display:flex;gap:10px;justify-content:center;margin:18px 0}.job{background:#35483b;color:#fff;border:2px solid #82917f}.job.active{background:#d2a65b;color:#211b12;border-color:#ffe3a0}
 small{color:#d8e2d6;line-height:1.7}
+
+#villagePanel{position:fixed;inset:0;display:none;place-items:center;background:#07140dcc;z-index:20;color:#fff;text-shadow:none}
+#villagePanel .shopbox{width:min(620px,92vw);max-height:86vh;overflow:auto;background:#20372a;border:2px solid #b99a61;border-radius:18px;padding:24px;box-shadow:0 20px 70px #0009}
+#villagePanel h2{margin:0 0 8px;color:#f2d28b}#villagePanel p{line-height:1.5}
+.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.shopgrid button{font-size:14px;padding:12px;background:#d2a65b}
+#moneyHud{position:fixed;right:18px;top:16px;padding:10px 14px;background:#17251ddd;border:1px solid #ffffff55;border-radius:9px;font-weight:bold;z-index:6;color:#ffe39a;text-shadow:0 1px 3px #000}
+#worldHud{position:fixed;left:18px;top:112px;padding:8px 12px;background:#17251dcc;border-radius:8px;color:#fff;font-size:13px;z-index:6;text-shadow:0 1px 3px #000;pointer-events:none}
+#toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);padding:10px 16px;background:#17251ddd;border-radius:9px;color:#fff;z-index:25;display:none;text-shadow:none}
+@media(max-width:650px){.shopgrid{grid-template-columns:1fr}#inventory{transform:scale(.8);transform-origin:bottom right}}
 </style>
 </head>
 <body>
@@ -41,6 +51,15 @@ window.addEventListener('error',e=>{if(e.target&&e.target.id==='gameModule'){con
   });
 })();
 </script>
+
+<div id="moneyHud">💰 <span id="moneyValue">5000</span> TL</div>
+<div id="worldHud">☀️ Gündüz · Açık hava</div><div id="toast"></div>
+<div id="villagePanel"><div class="shopbox"><h2 id="shopTitle">🏪 Köy Bakkalı</h2><p id="shopText">Köy ekonomisi · Ürün al, hasadını sat, yeni makineler edin.</p><div class="shopgrid">
+<button id="buySeed">🌱 Tohum al · 100 TL</button><button id="buyFeed">🌽 Hayvan yemi · 80 TL</button>
+<button id="buyFuel">⛽ Yakıt bidonu · 150 TL</button><button id="sellHarvest">🌾 Buğdayları sat</button>
+<button id="buyPickup">🛻 Pikap satın al · 2.500 TL</button><button id="buyJcb">🚜 JCB satın al · 6.000 TL</button>
+<button id="buyCombine">🌾 Biçerdöver satın al · 12.000 TL</button><button id="closeVillage">Kapat</button>
+</div><small>Kontroller: E etkileşim · O hava durumunu değiştir · K uyu · J süt sağ · G yumurta topla · H ürün sat</small></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module" id="gameModule">
 let THREE;
@@ -49,10 +68,10 @@ catch(primaryImportError){try{THREE=await import('https://unpkg.com/three@0.160.
 catch(fallbackImportError){throw new Error('3D motoru iki kaynaktan da yüklenemedi. İnternet/CDN erişimini kontrol et. '+(fallbackImportError.message||fallbackImportError));}}
 try{
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc8e8);scene.fog=new THREE.Fog(0x9bc8e8,65,190);
-const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,300);camera.position.set(0,1.7,10);scene.add(camera);
+const camera=new THREE.PerspectiveCamera(74,innerWidth/innerHeight,.1,700);camera.position.set(0,1.7,10);scene.add(camera);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xe7f4ff,0x77704a,2));
-const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xffe4b5,2.5);sun.position.set(-25,40,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-220;sun.shadow.camera.right=220;sun.shadow.camera.top=220;sun.shadow.camera.bottom=-220;scene.add(sun);
 const mat=(c,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
 const M={grass:mat(0x71894c),dirt:mat(0x9a805e),stone:mat(0x9b9587),wall:mat(0xd0c1a1),roof:mat(0x8f4933),wood:mat(0x684a30),dark:mat(0x282b29),glass:new THREE.MeshStandardMaterial({color:0x9dbbc0,roughness:.25,metalness:.15}),red:mat(0x9d3023),yellow:mat(0xb78b28),rubber:mat(0x20211f),white:mat(0xd5d3c9),green:mat(0x476b36)};
 function box(parent,x,y,z,w,h,d,material,rot=0){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.rotation.y=rot;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
@@ -319,6 +338,7 @@ let growthClock=0,harvestedCount=0,gameTime=0;
 const trailer=vehicles[2];
 function addTrailerWheat(){
   const n=harvestedCount++;
+  if(typeof money==='number'){money+=2;updateMoney()}
   const x=((n*7)%13-6)*.19;
   const z=-3.7+(((n*11)%15)-7)*.19;
   const layer=Math.floor(n/55);
@@ -419,7 +439,7 @@ let selectedFeedSlot=1;function selectFeedSlot(slot){if(slot<1||slot>5)return;se
 function feedNearestAnimal(){if(selectedFeedSlot>2){hint.textContent='Önce tavuk veya inek yemini seç';return}if(active){hint.textContent='Hayvanları beslemek için araçtan in';return}let target=null,best=5,isCow=false;for(const animal of [...chickens,...cows]){const d=camera.position.distanceTo(animal.mesh.position);if(d<best){best=d;target=animal;isCow=cows.includes(animal)}}if(!target){hint.textContent='Beslemek için uygun hayvana yaklaş (5 metre)';return}if((selectedFeedSlot===2)!==isCow){hint.textContent=isCow?'Bu inek · İnek yemi için 2. slotu seç':'Bu tavuk · Tavuk yemi için 1. slotu seç';return}target.hungry=false;target.hungerLeft=60;target.pecking=false;target.peckDuration=0;target.head.rotation.x=0;hint.textContent=(isCow?'İnek':'Tavuk')+' beslendi · 60 saniye sonra tekrar acıkacak';}
 for(let i=1;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>selectFeedSlot(i));
 document.addEventListener('keydown',e=>{const k=(e.key||'').toLocaleLowerCase('tr-TR');if(!e.repeat&&(k==='ş'||e.code==='Semicolon'||e.keyCode===186||e.keyCode===222)){e.preventDefault();e.stopImmediatePropagation();startSmoking();}},true);addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot(((selectedFeedSlot-1+(e.deltaY>0?1:4))%5)+1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='Digit9'||e.code==='Numpad9'){if(e.repeat)return;e.preventDefault();const opening=jobMenu.style.display!=='grid';jobMenu.style.display=opening?'grid':'none';if(opening&&document.pointerLockElement)document.exitPointerLock();return;}if(e.code==='KeyF'&&!e.repeat&&selectedJob==='farm')feedNearestAnimal();if(/^Digit[1-5]$/.test(e.code))selectFeedSlot(Number(e.code.slice(5)))});
-addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyO'&&!e.repeat){weatherMode=(weatherMode+1)%4;setWeather()}if(e.code==='KeyK'&&!e.repeat&&!active){dayClock=.28;showToast('Uyudun · Sabah oldu')}if(e.code==='KeyJ'&&!e.repeat&&!active){const c=nearestAnimal(cows,5);if(c){milkStock++;showToast('İnek sağıldı · Süt: '+milkStock+' litre')}else showToast('Süt sağmak için ineğe yaklaş')}if(e.code==='KeyG'&&!e.repeat&&!active){const h=nearestAnimal(chickens,5);if(h){eggStock++;showToast('Yumurta topladın · Yumurta: '+eggStock)}else showToast('Yumurta toplamak için kümese yaklaş')}if(e.code==='KeyH'&&!e.repeat&&!active)sellWheat();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
 let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;const hint=document.getElementById('hint'),mode=document.getElementById('mode');
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
 camera.position.set(-10,1.7,-2.7);
@@ -444,10 +464,118 @@ function blocked(x,z,r=.38){
  if(z>9.25&&z<10.9&&x>-31&&x<31)return true;
  return false;
 }
-function interact(){if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){smoking=false;smokeHand.visible=false;active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA',wheelLoader:'WHEEL LOADER',bulldozer:'BULDOZER'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
+function interact(){if(!active&&expandedInteract())return;if(active){const leaving=active;externalView=false;const exitPos=leaving.localToWorld(new THREE.Vector3(-2.25,1.7,.15));camera.position.copy(exitPos);camera.position.y=1.7;yaw=leaving.rotation.y+Math.PI+viewYawOffset;viewYawOffset=0;pitch=0;active=null;mode.textContent='· YAYA';hint.textContent='Araçtan indin · WASD ile yürüyebilirsin';return}let best=null,dist=5;for(const v of vehicles){const d=camera.position.distanceTo(new THREE.Vector3(v.position.x,1,v.position.z));if(d<dist){best=v;dist=d}}if(best){smoking=false;smokeHand.visible=false;active=best;yaw=best.rotation.y+Math.PI;viewYawOffset=0;pitch=0;mode.textContent='· '+({tractor:'TRAKTÖR',grader:'GREYDER',truck:'KAMYON',car:'TEMPRA',wheelLoader:'WHEEL LOADER',bulldozer:'BULDOZER'}[best.userData.type]);hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · E: in'}else hint.textContent='Araca binmek için yanına yaklaş'}
+
+// ===== GENİŞLETİLMİŞ KÖY DÜNYASI =====
+let money=5000,eggStock=0,milkStock=0,weatherMode=0,dayClock=0.28,lightsOn=true;
+const moneyValue=document.getElementById('moneyValue'),worldHud=document.getElementById('worldHud'),villagePanel=document.getElementById('villagePanel'),toast=document.getElementById('toast');
+function showToast(msg){toast.textContent=msg;toast.style.display='block';toast.dataset.until=String(performance.now()+2600)}
+function updateMoney(){moneyValue.textContent=Math.floor(money).toLocaleString('tr-TR')}
+function spend(amount){if(money<amount){showToast('Yeterli paran yok!');return false}money-=amount;updateMoney();return true}
+function villageBuilding(x,z,w,d,wallColor,roofColor,label){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ box(g,0,1.8,0,w,3.6,d,mat(wallColor));box(g,0,3.72,0,w+1,.35,d+1,mat(roofColor));
+ box(g,0,1.05,d/2+.035,1.35,2.1,.12,M.wood);
+ for(const sx of [-w*.3,w*.3]){box(g,sx,2.25,d/2+.04,1.05,.95,.1,M.glass);box(g,sx,2.25,d/2+.1,.07,1.05,.08,M.wood);box(g,sx,2.25,d/2+.1,1.12,.07,.08,M.wood)}
+ const sign=box(g,0,3.1,d/2+.13,Math.min(w*.8,7),.42,.13,mat(0x8c3a27));
+ return g;
+}
+// 500x500 metreye yayılan yeni arazi, köy yolları ve yeni mahalle bağlantıları.
+const extendedGround=new THREE.Mesh(new THREE.PlaneGeometry(520,520),M.grass);extendedGround.rotation.x=-Math.PI/2;extendedGround.position.set(0,-.105,0);extendedGround.receiveShadow=true;scene.add(extendedGround);
+box(scene,0,.012,19,360,.13,8.2,roadMat);
+box(scene,65,.018,55,8,.13,210,roadMat);
+box(scene,65,.09,55,.12,.05,210,roadLine);
+for(let z=-45;z<155;z+=9)box(scene,65,.1,z,4,.05,.12,roadLine);
+box(scene,65,.018,110,135,.13,7,roadMat);
+for(let x=0;x<135;x+=8)box(scene,x,.1,110,4,.05,.12,roadLine);
+// Köy meydanı, bakkal, kahvehane ve cami.
+villageBuilding(48,58,13,10,0xd6c7a6,0x934b35,'BAKKAL');
+villageBuilding(81,58,14,11,0xc9b99a,0x8f4933,'KÖY KAHVESİ');
+const mosque=villageBuilding(116,60,15,13,0xe4dfd0,0x567b85,'CAMİ');
+cyl(scene,116,8,60,.52,.7,9,M.wall,16);cyl(scene,116,13,60,.38,.52,2,M.wall,16);
+const mosqueTip=new THREE.Mesh(new THREE.ConeGeometry(.42,2.2,8),M.roof);mosqueTip.position.set(116,15.1,60);scene.add(mosqueTip);
+const dome=new THREE.Mesh(new THREE.SphereGeometry(4.2,16,10,0,Math.PI*2,0,Math.PI/2),mat(0x668b91));dome.position.set(116,3.9,60);scene.add(dome);
+for(let x=35;x<140;x+=8){cyl(scene,x,.45,45,.18,.18,.9,M.wood,8);box(scene,x,.8,45,1.8,.12,.12,M.wood)}
+// Meydan çeşmesi ve banklar.
+cyl(scene,65,.35,47,2.2,2.2,.7,mat(0x9a9b91),16);cyl(scene,65,.9,47,.28,.28,1.2,mat(0x7b9ba0),12);
+for(const x of [57,73]){box(scene,x,.55,48,3,.18,.65,M.wood);for(const dx of [-1,1])box(scene,x+dx,.25,48,.12,.5,.12,M.dark)}
+// Orman, meyve bahçesi ve gölet.
+for(let i=0;i<65;i++){const x=115+(Math.random()-.5)*90,z=-15+(Math.random()-.5)*105;tree(x,z,.65+Math.random()*.75)}
+for(let i=0;i<22;i++){const x=-75+(i%6)*7,z=-85+Math.floor(i/6)*8;tree(x,z,.8+Math.random()*.35);cyl(scene,x,1.7,z,.12,.15,3,mat(0x765034),8);const fruit=mat(0xb83d2e);for(let j=0;j<4;j++){const a=new THREE.Mesh(new THREE.SphereGeometry(.16,8,7),fruit);a.position.set(x+Math.cos(j*1.57)*.7,3.3,z+Math.sin(j*1.57)*.7);scene.add(a)}}
+const lake=new THREE.Mesh(new THREE.CircleGeometry(20,48),new THREE.MeshStandardMaterial({color:0x4b91a2,roughness:.22,metalness:.12}));lake.rotation.x=-Math.PI/2;lake.position.set(-112,-.045,-55);scene.add(lake);
+for(let i=0;i<8;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1.2+Math.random()*1.3,0),mat(0x817f73));rock.position.set(-112+Math.cos(i*Math.PI/4)*22,.3,-55+Math.sin(i*Math.PI/4)*22);scene.add(rock)}
+// Yeni tarla ve sebze sıraları.
+box(scene,-78,.02,-45,48,.1,34,mat(0x80613d));
+for(let row=0;row<9;row++){box(scene,-78,.09,-59+row*3.5,44,.06,.08,mat(0x5d472e));for(let col=0;col<18;col++){const plant=new THREE.Group();cyl(plant,0,.35,0,.045,.06,.7,mat(0x426d32),6);for(let a=0;a<3;a++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.25,7,5),mat(0x5d913e));leaf.scale.set(1,.3,1.7);leaf.position.set(Math.cos(a*2.1)*.25,.45,Math.sin(a*2.1)*.2);plant.add(leaf)}plant.position.set(-99+col*2.45,.1,-59+row*3.5);scene.add(plant)}}
+// Ahır ve depo.
+villageBuilding(-55,-35,17,12,0xb7a17b,0x713d2d,'AHIR');
+for(let i=0;i<4;i++){cyl(scene,-63+i*3,.8,-22,.55,.55,1.6,mat(0xb9aa8a),12)}
+// Köpek ve kedi modelleri.
+function makePet(x,z,isDog){const g=new THREE.Group(),coat=mat(isDog?0x9b7047:0x77716a);const body=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),coat);body.scale.set(1,.7,1.35);body.position.y=.55;g.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.34,10,8),coat);head.position.set(0,.8,.65);g.add(head);for(const s of [-1,1]){const ear=new THREE.Mesh(new THREE.ConeGeometry(.13,.38,7),coat);ear.position.set(s*.22,1.08,.65);g.add(ear);for(const zz of [-.35,.45]){const leg=cyl(g,s*.3,.25,zz,.09,.1,.5,coat,8);leg.position.y=.25}}const tail=new THREE.Mesh(new THREE.ConeGeometry(.12,.65,7),coat);tail.position.set(0,.85,-.85);tail.rotation.x=-1;g.add(tail);g.position.set(x,0,z);scene.add(g);return {mesh:g,x,z,phase:Math.random()*6,petDog:isDog}}
+const pets=[makePet(42,38,true),makePet(53,40,false),makePet(91,70,true)];
+// Köy halkı: yürüyen, sohbet eden ve meydanda dolaşan NPC'ler.
+const villagers=[];
+function makeVillager(x,z,i){const g=new THREE.Group(),skin=mat([0xb9825c,0xd2a17a,0x9a6748][i%3]),shirt=mat([0x315b83,0xb94a35,0x47734b,0xb18a36][i%4]),pants=mat(0x343b43);cyl(g,0,1.05,0,.22,.24,.75,pants,9);box(g,0,1.65,0,.5,.65,.3,shirt);cyl(g,0,2.18,0,.2,.2,.36,skin,10);for(const s of [-1,1]){const arm=box(g,s*.34,1.62,0,.13,.58,.14,skin);arm.rotation.z=s*.12}g.position.set(x,0,z);scene.add(g);return {mesh:g,homeX:x,homeZ:z,phase:Math.random()*7,dir:Math.random()*6.28,speed:.35+Math.random()*.35}}
+for(let i=0;i<13;i++)villagers.push(makeVillager(42+Math.random()*82,35+Math.random()*55,i));
+// İkinci araç galerisi ve park alanı.
+box(scene,130,.08,103,38,.16,28,mat(0x77766b));villageBuilding(130,118,19,10,0xd5d0c3,0x4b6573,'ARAÇ GALERİSİ');
+for(let i=0;i<5;i++)box(scene,114+i*8,.12,95,5,.12,8,mat(0xaaa99e));
+// Küçük JCB, pikap ve biçerdöver satın alınabilir.
+function addBoughtVehicle(kind,x,z){const v=vehicle('car',x,z,kind==='jcb'?0xd7a52b:kind==='combine'?0xc7a62c:0x477b9b);v.userData.type=kind;
+ if(kind==='pickup'){box(v,0,1.05,-1.15,1.65,.65,1.45,mat(0x47515a));box(v,0,1.42,-1.15,1.7,.12,1.5,mat(0x30363a))}
+ if(kind==='jcb'){const pivot=new THREE.Group();pivot.position.set(0,1.1,-1.4);v.add(pivot);box(pivot,0,.15,-.8,.25,.25,1.8,mat(0x454b43));box(pivot,0,-.42,-1.65,1.8,.65,.3,mat(0x5d6460));v.userData.toolPivot=pivot;v.userData.toolAngle=0}
+ if(kind==='combine'){box(v,0,2.35,-.7,2.2,1.25,1.6,M.glass);box(v,0,.6,-2.55,4.7,.35,.55,mat(0x8e8b80));for(let i=0;i<13;i++)box(v,-2.2+i*.36,.35,-2.8,.08,.22,.4,mat(0x45483f));box(v,0,1.25,-1.75,2.7,.7,1.2,mat(0xc49d2b))}
+ vehicles.push(v);showToast((kind==='pickup'?'Pikap':kind==='jcb'?'JCB':'Biçerdöver')+' galeriden alındı!');return v;
+}
+function openVillageShop(title){document.getElementById('shopTitle').textContent=title;villagePanel.style.display='grid';if(document.pointerLockElement)document.exitPointerLock()}
+document.getElementById('closeVillage').onclick=()=>villagePanel.style.display='none';
+document.getElementById('buySeed').onclick=()=>{if(spend(100))showToast('Tohum satın aldın · Yeni tarlayı ekebilirsin')};
+document.getElementById('buyFeed').onclick=()=>{if(spend(80))showToast('Hayvan yemi satın aldın')};
+document.getElementById('buyFuel').onclick=()=>{if(spend(150)){vehicles.forEach(v=>v.userData.fuel=100);showToast('Araçların yakıt depoları dolduruldu')}};
+document.getElementById('sellHarvest').onclick=()=>sellWheat();
+document.getElementById('buyPickup').onclick=()=>{if(spend(2500))addBoughtVehicle('pickup',122,94)};
+document.getElementById('buyJcb').onclick=()=>{if(spend(6000))addBoughtVehicle('jcb',130,94)};
+document.getElementById('buyCombine').onclick=()=>{if(spend(12000))addBoughtVehicle('combine',138,94)};
+function sellWheat(){if(harvestedCount<=0){showToast('Satılacak buğday yok');return}const n=harvestedCount;money+=n*12;harvestedCount=0;updateMoney();showToast(n+' birim buğday satıldı · +'+(n*12)+' TL')}
+function sellMilk(){if(milkStock<=0){showToast('Henüz süt yok');return}money+=milkStock*35;showToast(milkStock+' litre süt satıldı · +'+(milkStock*35)+' TL');money+=0;milkStock=0;updateMoney()}
+function sellEggs(){if(eggStock<=0){showToast('Henüz yumurta yok');return}money+=eggStock*18;showToast(eggStock+' yumurta satıldı · +'+(eggStock*18)+' TL');eggStock=0;updateMoney()}
+function nearestAnimal(list,maxDist){let found=null,d=maxDist;for(const a of list){const n=camera.position.distanceTo(a.mesh.position);if(n<d){d=n;found=a}}return found}
+function expandedInteract(){if(villagePanel.style.display==='grid'){villagePanel.style.display='none';return true}
+ const p=camera.position;
+ if(Math.hypot(p.x-48,p.z-58)<9){openVillageShop('🏪 Köy Bakkalı');return true}
+ if(Math.hypot(p.x-81,p.z-58)<10){openVillageShop('☕ Köy Kahvesi');return true}
+ if(Math.hypot(p.x-130,p.z-118)<12){openVillageShop('🚜 Araç Galerisi');return true}
+ if(Math.hypot(p.x-116,p.z-60)<10){showToast('Köy camisi · Meydanın hemen yanında');return true}
+ return false;
+}
+function updateExpandedWorld(dt){
+ if(toast.style.display==='block'&&performance.now()>Number(toast.dataset.until||0))toast.style.display='none';
+ // Gün doğumu, öğle, gün batımı ve gece döngüsü.
+ dayClock=(dayClock+dt/420)%1;const sunHeight=Math.sin(dayClock*Math.PI*2-Math.PI/2);
+ const daylight=THREE.MathUtils.clamp((sunHeight+.12)*1.35,.12,1);
+ sun.intensity=.22+daylight*2.4;sun.color.setHSL(.11,.45,.72+daylight*.15);
+ scene.background.setHSL(.58,.34,.12+daylight*.48);scene.fog.color.copy(scene.background);scene.fog.near=75;scene.fog.far=250;
+ worldHud.textContent=(daylight>.65?'☀️ Gündüz':daylight>.25?'🌇 Akşam':'🌙 Gece')+' · '+(['Açık hava','Yağmur','Kar','Sis'][weatherMode]);
+ // Hava: yağmur/kar/sis. Partiküller oyuncu çevresinde yenilenir.
+ if(weatherMode===3){scene.fog.far=95;scene.fog.near=12}else{scene.fog.far=250;scene.fog.near=75}
+ weatherParticles.forEach(p=>{p.position.y-=dt*(weatherMode===2?3.5:weatherMode===1?13:0);if(p.position.y<.2){p.position.y=18+Math.random()*8;p.position.x=camera.position.x+(Math.random()-.5)*75;p.position.z=camera.position.z+(Math.random()-.5)*75}});
+ for(const v of villagers){v.phase+=dt;v.mesh.position.x=v.homeX+Math.sin(v.phase*.35+v.dir)*3.2;v.mesh.position.z=v.homeZ+Math.cos(v.phase*.28+v.dir)*2.4;v.mesh.rotation.y=Math.atan2(Math.cos(v.phase*.35+v.dir),-Math.sin(v.phase*.28+v.dir));}
+ for(const p of pets){p.phase+=dt;p.mesh.position.x=p.x+Math.sin(p.phase*.65)*2.2;p.mesh.position.z=p.z+Math.cos(p.phase*.5)*1.6;p.mesh.rotation.y=p.phase*.5}
+ // Sokak lambaları gece yanar.
+ streetLamps.forEach(l=>l.intensity=lightsOn&&daylight<.32?1.5:0);
+}
+const weatherParticles=[];
+for(let i=0;i<180;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.035,5,4),new THREE.MeshBasicMaterial({color:0xddeeff,transparent:true,opacity:.7}));m.position.set((Math.random()-.5)*75,Math.random()*25,(Math.random()-.5)*75);m.visible=false;scene.add(m);weatherParticles.push(m)}
+const streetLamps=[];
+for(const [x,z] of [[35,45],[65,45],[95,45],[65,85],[110,85],[130,110],[-60,-40]]){cyl(scene,x,4,z,.09,.12,8,M.dark,8);box(scene,x,8,z,.8,.12,.8,M.yellow);const l=new THREE.PointLight(0xffd99a,0,22,2);l.position.set(x,7.6,z);scene.add(l);streetLamps.push(l)}
+// Hava partiküllerini yalnızca ilgili modda göster.
+function setWeather(){weatherParticles.forEach(p=>{p.visible=weatherMode===1||weatherMode===2});showToast('Hava durumu: '+(['Açık','Yağmur','Kar','Sis'][weatherMode]))}
+updateMoney();
+
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
+updateExpandedWorld(dt);
 for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;w.armL.rotation.x=Math.sin(gameTime*5+w.phase)*.48;w.armR.rotation.x=Math.sin(gameTime*5+w.phase+Math.PI)*.62;}
 if(constructionProgress<progressingBricks.length){
  constructionWorkClock+=dt;
@@ -504,12 +632,12 @@ for(const v of trafficVehicles){
     }else{
       v.position.x=nextX;
       if(traffic.direction===1&&v.position.x>96){
-        v.position.x=-96-Math.random()*18;
+        v.position.x=-176-Math.random()*18;
         v.position.z=17.15;
         traffic.speed=4.2+Math.random()*3.4;
         traffic.stopChance=Math.random()<.32;
       }else if(traffic.direction===-1&&v.position.x< -96){
-        v.position.x=96+Math.random()*18;
+        v.position.x=176+Math.random()*18;
         v.position.z=20.85;
         traffic.speed=4.2+Math.random()*3.4;
         traffic.stopChance=Math.random()<.32;
@@ -637,7 +765,7 @@ const steer=(keys.KeyA?1:0)-(keys.KeyD?1:0);const throttle=active.userData.fuel>
   camera.rotation.set(pitch-0.42,active.rotation.y+Math.PI+viewYawOffset,0,'YXZ');
   hint.textContent='W: gaz · S: fren/geri · A/D: direksiyon · C: dış kamera · E: araçtan in';
 }}
-else{document.getElementById('fuelPanel').style.display='none';const next=camera.position.clone().addScaledVector(move,speed);if(!blocked(next.x,next.z,.38)){camera.position.x=next.x;camera.position.z=next.z}camera.position.y=1.7;camera.position.x=Math.max(-42,Math.min(42,camera.position.x));camera.position.z=Math.max(-42,Math.min(52,camera.position.z));if(move.lengthSq()===0&&!nearHouseDoor&&!nearGarageDoor)hint.textContent='WASD ile yürü · E ile araçlara bin'}}
+else{document.getElementById('fuelPanel').style.display='none';const next=camera.position.clone().addScaledVector(move,speed);if(!blocked(next.x,next.z,.38)){camera.position.x=next.x;camera.position.z=next.z}camera.position.y=1.7;camera.position.x=Math.max(-205,Math.min(205,camera.position.x));camera.position.z=Math.max(-205,Math.min(205,camera.position.z));if(move.lengthSq()===0&&!nearHouseDoor&&!nearGarageDoor)hint.textContent='WASD ile yürü · E ile araçlara bin'}}
 renderer.render(scene,camera)}animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 }catch(gameBootError){
