@@ -2,7 +2,32 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Köy Hayatı 3D</title>
+<title>Dirmil Köyü 3D – Ücretsiz 3D Köy Yaşamı Oyunu</title>
+<meta name="description" content="Dirmil Köyü 3D'ye katıl! Traktör sür, tarlaları ek ve biç, hayvanları besle, köyü keşfet ve arkadaşlarınla çevrim içi oyna. Ücretsiz tarayıcı oyunu.">
+<meta name="keywords" content="Dirmil Köyü 3D, Dirmil Köyü, 3D köy oyunu, köy yaşamı oyunu, traktör oyunu, çiftçilik oyunu, tarım simülasyonu, Türkçe oyun, ücretsiz tarayıcı oyunu">
+<meta name="author" content="Dirmil Köyü 3D">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#71894c">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:site_name" content="Dirmil Köyü 3D">
+<meta property="og:title" content="Dirmil Köyü 3D – Ücretsiz 3D Köy Yaşamı Oyunu">
+<meta property="og:description" content="Traktör sür, çiftçilik yap, hayvanları besle ve arkadaşlarınla Dirmil Köyü'nü keşfet.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dirmil Köyü 3D">
+<meta name="twitter:description" content="Ücretsiz 3D köy yaşamı ve çiftçilik oyunu.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Dirmil Köyü 3D",
+  "description": "Tarayıcıda oynanan ücretsiz 3D Türk köy yaşamı oyunu. Traktör sür, çiftçilik yap, hayvanları besle, köyü keşfet ve arkadaşlarınla çevrim içi oyna.",
+  "genre": ["Simulation", "Farming", "Life Simulation"],
+  "gamePlatform": ["Web Browser", "Desktop", "Mobile"],
+  "inLanguage": "tr",
+  "applicationCategory": "Game"
+}
+</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bc8e8;font-family:Arial,sans-serif}canvas{display:block;cursor:none!important}body{cursor:none!important}button,.invslot{cursor:pointer}
 #hud{position:fixed;inset:0;pointer-events:none;color:white;text-shadow:0 2px 4px #222}
@@ -40,7 +65,7 @@ small{color:#d8e2d6;line-height:1.7}
 </head>
 <body>
 <div id="jobMenu"><div id="panel"><h1>🌿 MESLEK SEÇİMİ</h1><p>Mesleğini seç. Menü 9 tuşuyla açılır ve kapanır.</p><div class="jobChoices"><button id="jobFarm" class="job active">🌾 ÇİFTÇİLİK</button><button id="jobBuild" class="job">🧱 İŞÇİLİK</button></div><p id="jobDescription">Köyde çiftçilik yap, hayvanları besle ve tarlayı biç.</p><p><small>Bir meslek seçmek için seçeneklerden birine tıkla.</small></p><p id="bootError" style="color:#ffb3a8;font-weight:bold;max-width:440px"></p><small>W A S D: yürü · Fare: etrafa bak · E: araca bin / in · Shift: koş · ESC: fareyi serbest bırak</small></div></div>
-<div id="hud"><div id="brand">KÖY HAYATI 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
+<div id="hud"><div id="brand">DİRMİL KÖYÜ 3D <span id="mode">· YAYA</span></div><div id="cross"></div><div id="fuelPanel">BENZİN: <span id="fuelValue">100</span>%</div><div id="hint">WASD ile yürü · E ile araçlara yaklaş · Tavuğa yaklaş ve F ile besle</div></div><div id="chickenLabels"></div><div id="inventory"><div class="invslot selected" id="slot1"><span class="item">🌽</span><span id="slotName1">Tavuk yemi</span><span class="count" id="slotCount1">∞</span></div><div class="invslot" id="slot2"><span class="item">🌾</span><span id="slotName2">İnek yemi</span><span class="count" id="slotCount2">∞</span></div><div class="invslot" id="slot3"><span class="item">—</span><span id="slotName3">Boş</span></div><div class="invslot" id="slot4"><span class="item">—</span><span id="slotName4">Boş</span></div><div class="invslot" id="slot5"><span class="item">—</span><span id="slotName5">Boş</span></div></div>
 <script>
 window.__gameReady=false;window.__gameInitError='';window.__gameStartRequested=false;
 window.addEventListener('error',e=>{window.__gameInitError=e.message||'Bilinmeyen JavaScript hatası';const p=document.getElementById('bootError');if(p)p.textContent='OYUN HATASI: '+window.__gameInitError;});
