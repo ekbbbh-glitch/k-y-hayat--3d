@@ -26,7 +26,7 @@ small{color:#d8e2d6;line-height:1.7}
 .shopgrid button{font-size:14px;padding:12px;background:#d2a65b}
 #moneyHud{position:fixed;right:18px;top:16px;padding:10px 14px;background:#17251ddd;border:1px solid #ffffff55;border-radius:9px;font-weight:bold;z-index:6;color:#ffe39a;text-shadow:0 1px 3px #000}
 #worldHud{position:fixed;left:18px;top:112px;padding:8px 12px;background:#17251dcc;border-radius:8px;color:#fff;font-size:13px;z-index:6;text-shadow:0 1px 3px #000;pointer-events:none}
-#toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);padding:10px 16px;background:#17251ddd;border-radius:9px;color:#fff;z-index:25;display:none;text-shadow:none}
+#onlinePanel{position:fixed;inset:0;display:none;place-items:center;background:#07140dcc;z-index:30;color:#fff;text-shadow:none}#onlinePanel .onlinebox{width:min(520px,92vw);background:#20372a;border:2px solid #b99a61;border-radius:18px;padding:24px;box-shadow:0 20px 70px #0009}#onlinePanel h2{color:#f2d28b;margin:0 0 10px}#onlinePanel input{width:100%;padding:13px;border-radius:9px;border:1px solid #b99a61;background:#101c15;color:#fff;font-size:20px;letter-spacing:4px;text-align:center;margin:8px 0}#onlinePanel .onlinebuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}#onlinePanel button{font-size:14px;padding:12px}#onlineStatus{font-size:13px;color:#d8e2d6;min-height:34px;line-height:1.5}#roomCode{font-size:28px;letter-spacing:5px;color:#ffe39a;font-weight:bold;text-align:center;padding:12px;background:#101c15;border-radius:10px;margin:10px 0}#toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);padding:10px 16px;background:#17251ddd;border-radius:9px;color:#fff;z-index:25;display:none;text-shadow:none}
 @media(max-width:650px){.shopgrid{grid-template-columns:1fr}#inventory{transform:scale(.8);transform-origin:bottom right}}
 </style>
 </head>
@@ -54,7 +54,7 @@ window.addEventListener('error',e=>{if(e.target&&e.target.id==='gameModule'){con
 
 <div id="moneyHud">💰 <span id="moneyValue">5000</span> TL</div>
 <div id="worldHud">☀️ Gündüz · Açık hava</div><div id="toast"></div>
-<div id="villagePanel"><div class="shopbox"><h2 id="shopTitle">🏪 Köy Bakkalı</h2><p id="shopText">Köy ekonomisi · Ürün al, hasadını sat, yeni makineler edin.</p><div class="shopgrid">
+<div id="onlinePanel"><div class="onlinebox"><h2>🌐 Arkadaşınla Köy Hayatı</h2><p>Oda oluştur ve kodu arkadaşına gönder. Arkadaşın bu kodla aynı köye katılsın.</p><div id="roomCode">------</div><input id="joinCode" maxlength="6" inputmode="numeric" placeholder="ARKADAŞININ 6 HANELİ KODU"><div class="onlinebuttons"><button id="createRoom">🏡 Oda oluştur</button><button id="joinRoom">🔗 Odaya katıl</button><button id="copyRoom">📋 Kodu kopyala</button><button id="leaveRoom">Bağlantıyı kes</button></div><div id="onlineStatus">Bağlı değilsin. Oda oluştur veya arkadaşının kodunu gir.</div><button id="closeOnline" style="width:100%;margin-top:8px">Kapat</button></div></div><div id="villagePanel"><div class="shopbox"><h2 id="shopTitle">🏪 Köy Bakkalı</h2><p id="shopText">Köy ekonomisi · Ürün al, hasadını sat, yeni makineler edin.</p><div class="shopgrid">
 <button id="buySeed">🌱 Tohum al · 100 TL</button><button id="buyFeed">🌽 Hayvan yemi · 80 TL</button>
 <button id="buyFuel">⛽ Yakıt bidonu · 150 TL</button><button id="sellHarvest">🌾 Buğdayları sat</button><button id="sellMilk">🥛 Sütleri sat</button><button id="sellEggs">🥚 Yumurtaları sat</button>
 <button id="buyPickup">🛻 Pikap satın al · 2.500 TL</button><button id="buyJcb">🚜 JCB satın al · 6.000 TL</button>
@@ -216,6 +216,79 @@ box(cabin,0,.88,-.72,1.05,.2,.82,mat(0x292c2a));
 box(cabin,0,1.42,-1.08,1.05,.92,.22,mat(0x303431));
 g.userData={type,drive:false,cabin,wheelGroup,pedals,toolPivot,toolAngle:0,fuel:100,fuelClock:0,refueling:false};return g}
 const vehicles=[vehicle('tractor',9,-.7,0xa43124),vehicle('grader',17,-.8,0xb38b2c),vehicle('truck',27,-.6,0x9c3027),vehicle('car',-21,2,0xc9c8bd),vehicle('wheelLoader',-28,-1.2,0xd1a52c),vehicle('bulldozer',-35,-1.2,0xc49a25)];
+// ===== ÇEVRİM İÇİ ARKADAŞ MODU =====
+const onlinePanel=document.getElementById('onlinePanel'),onlineStatus=document.getElementById('onlineStatus'),roomCodeBox=document.getElementById('roomCode');
+let netPeer=null,netHost=false,netCode='',netConn=null,netClock=0,netSlot=0,netPeers={},netPlayers={},farmAssets={},nextFarmSlot=1;
+function setOnlineStatus(t){onlineStatus.textContent=t}
+function makeFarm(slot,id){
+ if(farmAssets[id])return farmAssets[id];
+ const x=18+(slot-1)*23,z=-11;
+ const home=new THREE.Group();home.position.set(x,0,z);scene.add(home);
+ box(home,0,1.65,0,9,3.3,7,M.wall);box(home,0,3.45,0,9.8,.35,7.8,M.roof);
+ box(home,0,1.1,3.56,1.35,2.2,.15,M.wood);
+ box(home,-2.8,2.1,3.62,1.5,1.1,.12,M.glass);box(home,2.8,2.1,3.62,1.5,1.1,.12,M.glass);
+ const car=vehicle('car',x+6,z+7,slot%2?0x477b9b:0x9b3b2e);car.userData.owner=id;car.userData.type='car';car.userData.fuel=100;car.userData.fuelClock=0;
+ vehicles.push(car);
+ const cow=new THREE.Group();cow.position.set(x-5,.05,z+8);scene.add(cow);
+ const cm=mat(0xe4dfd0),black=mat(0x34312e);
+ const body= new THREE.Mesh(new THREE.SphereGeometry(.9,12,9),cm);body.scale.set(1.25,.72,.72);body.position.y=1; cow.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.43,12,9),cm);head.position.set(0,1.45,.9);cow.add(head);
+ for(const sx of [-.55,.55])for(const sz of [-.42,.42]){const leg=box(cow,sx,.42,sz,.18,.75,.18,black);leg.position.y=.42}
+ const hen=new THREE.Group();hen.position.set(x+1,.04,z+8);scene.add(hen);
+ const hb=new THREE.Mesh(new THREE.SphereGeometry(.38,10,8),mat(0xf1eee2));hb.scale.set(1,.8,1.2);hb.position.y=.45;hen.add(hb);
+ const hh=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),mat(0xf1eee2));hh.position.set(0,.72,.34);hen.add(hh);
+ const comb=new THREE.Mesh(new THREE.SphereGeometry(.11,8,6),mat(0xb83b2b));comb.position.set(0,.91,.34);hen.add(comb);
+ farmAssets[id]={slot,home,car,cow,hen,x,z};return farmAssets[id];
+}
+function makeRemoteAvatar(id,slot){
+ if(netPlayers[id])return netPlayers[id];
+ const g=new THREE.Group();const shirt=mat(0x426f8d),skin=mat(0xc58e68),pants=mat(0x303a43);
+ const torso= new THREE.Mesh(new THREE.CapsuleGeometry(.34,.7,4,8),shirt);torso.position.y=1.25;g.add(torso);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.25,12,10),skin);head.position.y=1.95;g.add(head);
+ for(const x of [-.17,.17]){const leg=box(g,x,.42,0,.2,.72,.23,pants);leg.position.y=.42}
+ scene.add(g);const farm=makeFarm(slot,id);netPlayers[id]={mesh:g,slot,farm};return netPlayers[id];
+}
+function networkReceive(id,msg){
+ if(!msg||typeof msg!=='object')return;
+ if(msg.type==='hello'&&netHost){const slot=nextFarmSlot++;makeRemoteAvatar(id,slot);netPeers[id].slot=slot;netPeers[id].send({type:'welcome',slot,host:{x:camera.position.x,z:camera.position.z}});broadcastWorld();return}
+ if(msg.type==='welcome'&&!netHost){netSlot=msg.slot;makeFarm(netSlot,'me');setOnlineStatus('Bağlandın! Köyün hazır. Evin ana evin yanında kuruldu.');return}
+ if(msg.type==='state'&&netHost){netPlayers[id]??=makeRemoteAvatar(id,netPeers[id]?.slot||1);netPlayers[id].state=msg;return}
+ if(msg.type==='world'&&!netHost){for(const p of msg.players||[]){if(p.id==='host'){const hostAvatar=netPlayers.host||(()=>{const g=new THREE.Group();const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.7,4,8),mat(0x426f8d));torso.position.y=1.25;g.add(torso);const h=new THREE.Mesh(new THREE.SphereGeometry(.25,12,10),mat(0xc58e68));h.position.y=1.95;g.add(h);scene.add(g);netPlayers.host={mesh:g,slot:0};return netPlayers.host})();hostAvatar.mesh.position.set(p.x||0,0,p.z||0);hostAvatar.mesh.rotation.y=p.yaw||0;continue}const a=makeRemoteAvatar(p.id,p.slot||1);a.mesh.position.set(p.x||0,0,p.z||0);a.mesh.rotation.y=p.yaw||0;if(p.car){a.farm.car.position.set(p.car.x,0,p.car.z);a.farm.car.rotation.y=p.car.yaw||0}}
+ return}
+}
+function broadcastWorld(){
+ if(!netHost)return;const players=[];
+ for(const [id,p] of Object.entries(netPlayers)){const st=p.state||{};players.push({id,slot:p.slot,x:st.x||p.mesh.position.x,z:st.z||p.mesh.position.z,yaw:st.yaw||0,car:st.car||null});}
+ const msg={type:'world',players};for(const c of Object.values(netPeers))if(c.open)c.send(msg);
+}
+async function createOnlineRoom(){
+ try{if(netPeer)netPeer.destroy();const mod=await import('https://esm.sh/peerjs@1.5.4');const Peer=mod.Peer||mod.default;netCode=String(Math.floor(100000+Math.random()*900000));netHost=true;netPeer=new Peer('kyh-'+netCode);
+ roomCodeBox.textContent=netCode;setOnlineStatus('Oda sunucusu hazırlanıyor…');
+ netPeer.on('open',()=>setOnlineStatus('Oda hazır! Kodu arkadaşına gönder: '+netCode));
+ netPeer.on('connection',c=>{netPeers[c.peer]=c;c.on('open',()=>c.send({type:'hello'}));c.on('data',m=>networkReceive(c.peer,m));c.on('close',()=>{delete netPeers[c.peer];delete netPlayers[c.peer];broadcastWorld()})});
+ netPeer.on('error',e=>setOnlineStatus('Bağlantı hatası: '+(e.type||e.message||'bilinmeyen hata')));
+ }catch(e){setOnlineStatus('Çevrim içi servis yüklenemedi: '+e.message)}
+}
+async function joinOnlineRoom(){
+ const code=document.getElementById('joinCode').value.replace(/\D/g,'').slice(0,6);if(code.length!==6){setOnlineStatus('Lütfen 6 haneli oda kodunu gir.');return}
+ try{if(netPeer)netPeer.destroy();const mod=await import('https://esm.sh/peerjs@1.5.4');const Peer=mod.Peer||mod.default;netCode=code;netHost=false;netPeer=new Peer();
+ netPeer.on('open',()=>{netConn=netPeer.connect('kyh-'+code,{reliable:true});netConn.on('open',()=>{netConn.send({type:'hello'});setOnlineStatus('Odaya bağlanılıyor…')});netConn.on('data',m=>networkReceive('host',m));netConn.on('close',()=>setOnlineStatus('Oda bağlantısı kapandı.'))});
+ netPeer.on('error',e=>setOnlineStatus('Odaya bağlanılamadı: '+(e.type||e.message||'kodu kontrol et')));
+ }catch(e){setOnlineStatus('Çevrim içi servis yüklenemedi: '+e.message)}
+}
+function sendOnlineState(dt){
+ if(!netPeer||!netPeer.open)return;
+ netClock+=dt;if(netClock<.12)return;netClock=0;
+ const car=active&&active.userData.owner==='me'?{x:active.position.x,z:active.position.z,yaw:active.rotation.y}:null;
+ const state={type:'state',x:camera.position.x,z:camera.position.z,yaw,car};
+ if(netHost){for(const c of Object.values(netPeers))if(c.open)c.send({type:'world',players:[{id:'host',slot:0,x:camera.position.x,z:camera.position.z,yaw,car:null},...Object.entries(netPlayers).map(([pid,p])=>({id:pid,slot:p.slot,x:p.state?.x??p.mesh.position.x,z:p.state?.z??p.mesh.position.z,yaw:p.state?.yaw??0,car:p.state?.car||null}))]})}
+ else if(netConn?.open)netConn.send(state);
+}
+document.getElementById('createRoom').onclick=createOnlineRoom;document.getElementById('joinRoom').onclick=joinOnlineRoom;
+document.getElementById('copyRoom').onclick=()=>{if(netCode)navigator.clipboard?.writeText(netCode).then(()=>setOnlineStatus('Oda kodu kopyalandı.')).catch(()=>setOnlineStatus('Kod: '+netCode));else setOnlineStatus('Önce oda oluştur.')}
+document.getElementById('leaveRoom').onclick=()=>{if(netPeer)netPeer.destroy();netPeer=null;netConn=null;netPeers={};netPlayers={};netHost=false;netCode='';roomCodeBox.textContent='------';setOnlineStatus('Bağlantı kesildi.');}
+document.getElementById('closeOnline').onclick=()=>onlinePanel.style.display='none';
+
 // trailer behind truck
 box(vehicles[2],0,1,-3.7,3.2,1.8,3.8,mat(0x9b3027));for(const s of [-1,1])for(const z of [-4.7,-2.7]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.32,14),M.rubber);w.rotation.z=Math.PI/2;w.position.set(s*1.55,.48,z);vehicles[2].add(w)}
 
@@ -439,7 +512,7 @@ let selectedFeedSlot=1;function selectFeedSlot(slot){if(slot<1||slot>5)return;se
 function feedNearestAnimal(){if(selectedFeedSlot>2){hint.textContent='Önce tavuk veya inek yemini seç';return}if(active){hint.textContent='Hayvanları beslemek için araçtan in';return}let target=null,best=5,isCow=false;for(const animal of [...chickens,...cows]){const d=camera.position.distanceTo(animal.mesh.position);if(d<best){best=d;target=animal;isCow=cows.includes(animal)}}if(!target){hint.textContent='Beslemek için uygun hayvana yaklaş (5 metre)';return}if((selectedFeedSlot===2)!==isCow){hint.textContent=isCow?'Bu inek · İnek yemi için 2. slotu seç':'Bu tavuk · Tavuk yemi için 1. slotu seç';return}target.hungry=false;target.hungerLeft=60;target.pecking=false;target.peckDuration=0;target.head.rotation.x=0;hint.textContent=(isCow?'İnek':'Tavuk')+' beslendi · 60 saniye sonra tekrar acıkacak';}
 for(let i=1;i<=5;i++)document.getElementById('slot'+i).addEventListener('click',()=>selectFeedSlot(i));
 document.addEventListener('keydown',e=>{const k=(e.key||'').toLocaleLowerCase('tr-TR');if(!e.repeat&&(k==='ş'||e.code==='Semicolon'||e.keyCode===186||e.keyCode===222)){e.preventDefault();e.stopImmediatePropagation();startSmoking();}},true);addEventListener('wheel',e=>{if(e.deltaY!==0){e.preventDefault();selectFeedSlot(((selectedFeedSlot-1+(e.deltaY>0?1:4))%5)+1)}},{passive:false});addEventListener('keydown',e=>{if(e.code==='Digit9'||e.code==='Numpad9'){if(e.repeat)return;e.preventDefault();const opening=jobMenu.style.display!=='grid';jobMenu.style.display=opening?'grid':'none';if(opening&&document.pointerLockElement)document.exitPointerLock();return;}if(e.code==='KeyF'&&!e.repeat&&selectedJob==='farm')feedNearestAnimal();if(/^Digit[1-5]$/.test(e.code))selectFeedSlot(Number(e.code.slice(5)))});
-addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyO'&&!e.repeat){weatherMode=(weatherMode+1)%4;setWeather()}if(e.code==='KeyK'&&!e.repeat&&!active){dayClock=.28;showToast('Uyudun · Sabah oldu')}if(e.code==='KeyL'&&!e.repeat){lightsOn=!lightsOn;showToast(lightsOn?'Köy ışıkları açık':'Köy ışıkları kapalı')}if(e.code==='KeyJ'&&!e.repeat&&!active){const c=nearestAnimal(cows,5);if(c){milkStock++;showToast('İnek sağıldı · Süt: '+milkStock+' litre')}else showToast('Süt sağmak için ineğe yaklaş')}if(e.code==='KeyG'&&!e.repeat&&!active){const h=nearestAnimal(chickens,5);if(h){eggStock++;showToast('Yumurta topladın · Yumurta: '+eggStock)}else showToast('Yumurta toplamak için kümese yaklaş')}if(e.code==='KeyH'&&!e.repeat&&!active)sellWheat();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='Digit6'&&!e.repeat){onlinePanel.style.display=onlinePanel.style.display==='grid'?'none':'grid';if(onlinePanel.style.display==='grid'&&document.pointerLockElement)document.exitPointerLock();return;}if(e.code==='KeyE'&&!e.repeat)interact();if(e.code==='KeyO'&&!e.repeat){weatherMode=(weatherMode+1)%4;setWeather()}if(e.code==='KeyK'&&!e.repeat&&!active){dayClock=.28;showToast('Uyudun · Sabah oldu')}if(e.code==='KeyL'&&!e.repeat){lightsOn=!lightsOn;showToast(lightsOn?'Köy ışıkları açık':'Köy ışıkları kapalı')}if(e.code==='KeyJ'&&!e.repeat&&!active){const c=nearestAnimal(cows,5);if(c){milkStock++;showToast('İnek sağıldı · Süt: '+milkStock+' litre')}else showToast('Süt sağmak için ineğe yaklaş')}if(e.code==='KeyG'&&!e.repeat&&!active){const h=nearestAnimal(chickens,5);if(h){eggStock++;showToast('Yumurta topladın · Yumurta: '+eggStock)}else showToast('Yumurta toplamak için kümese yaklaş')}if(e.code==='KeyH'&&!e.repeat&&!active)sellWheat();if(e.code==='KeyR'&&!e.repeat)refuelVehicle();if(e.code==='KeyC'&&!e.repeat&&active){externalView=!externalView;hint.textContent=externalView?'Dış kamera · C ile kokpite dön':'Kokpit kamerası · C ile dış kameraya geç'}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
 let yaw=0,pitch=0,viewYawOffset=0,locked=false,active=null,externalView=false;const hint=document.getElementById('hint'),mode=document.getElementById('mode');
 // Başlangıç noktası: evin ön kapısının hemen karşısı.
 camera.position.set(-10,1.7,-2.7);
@@ -578,7 +651,7 @@ updateMoney();
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
 gameTime+=dt;
 growthClock+=dt;
-updateExpandedWorld(dt);
+updateExpandedWorld(dt);sendOnlineState(dt);
 for(const w of workers){w.mesh.position.x=w.baseX+Math.sin(gameTime*.7+w.phase)*.22;w.mesh.position.z=w.baseZ+Math.cos(gameTime*.55+w.phase)*.16;w.mesh.rotation.y=Math.sin(gameTime*.6+w.phase)*.18;w.armL.rotation.x=Math.sin(gameTime*5+w.phase)*.48;w.armR.rotation.x=Math.sin(gameTime*5+w.phase+Math.PI)*.62;}
 if(constructionProgress<progressingBricks.length){
  constructionWorkClock+=dt;
