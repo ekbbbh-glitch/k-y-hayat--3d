@@ -534,7 +534,7 @@ document.addEventListener('mousemove',e=>{if(!locked)return;if(active)viewYawOff
 // Mobil cihaz algılama ve sanal kontroller. Masaüstü klavye/fare akışı değişmez.
 const isMobileDevice=('ontouchstart'in window)||navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
 const mobileControls=document.getElementById('mobileControls'),mobileLook=document.getElementById('mobileLook');
-if(isMobileDevice){mobileControls.style.display='block';document.body.classList.add('mobile-game');hint.textContent='Sol yön tuşları: yürü · Sağ alan: bak · E: etkileşim';}
+if(isMobileDevice){mobileControls.style.display='block';document.body.classList.add('mobile-game');hint.textContent='Sol yön tuşları: yürü · Sağ alan: bak · E: etkileşim';}else{mobileControls.style.display='none';}
 function setVirtualKey(code,on){keys[code]=on}
 document.querySelectorAll('[data-move]').forEach(btn=>{const code=btn.dataset.move;btn.addEventListener('pointerdown',e=>{e.preventDefault();btn.setPointerCapture(e.pointerId);setVirtualKey(code,true)});const off=e=>{e.preventDefault();setVirtualKey(code,false)};btn.addEventListener('pointerup',off);btn.addEventListener('pointercancel',off);btn.addEventListener('lostpointercapture',()=>setVirtualKey(code,false));});
 document.querySelectorAll('[data-action]').forEach(btn=>{const code=btn.dataset.action;btn.addEventListener('pointerdown',e=>{e.preventDefault();if(code==='KeyE')interact();else if(code==='KeyF'&&selectedJob==='farm')feedNearestAnimal();else if(code==='KeyJ'&&!active){const c=nearestAnimal(cows,5);if(c){milkStock++;showToast('İnek sağıldı · Süt: '+milkStock+' litre')}}else if(code==='KeyG'&&!active){const h=nearestAnimal(chickens,5);if(h){eggStock++;showToast('Yumurta topladın · Yumurta: '+eggStock)}}else if(code==='KeyR')refuelVehicle();else if(code==='KeyC'&&active)externalView=!externalView;else if(code==='KeyO'){weatherMode=(weatherMode+1)%4;setWeather()}else if(code==='ShiftLeft')keys.ShiftLeft=true;});const off=()=>{if(code==='ShiftLeft')keys.ShiftLeft=false};btn.addEventListener('pointerup',off);btn.addEventListener('pointercancel',off);});
@@ -559,7 +559,7 @@ function blocked(x,z,r=.38){
   }
  }
  // Park edilmiş araçlar ve diğer makineler: içlerinden yürünemez.
- for(const v of vehicles){if(v===active)continue;const dx=x-v.position.x,dz=z-v.position.z;if(Math.abs(dx)<1.65+r&&Math.abs(dz)<2.45+r)return true;}
+ for(const v of vehicles.concat(trafficVehicles)){if(v===active)continue;const dx=x-v.position.x,dz=z-v.position.z;if(Math.abs(dx)<1.65+r&&Math.abs(dz)<2.45+r)return true;}
  // Köy yolu kenarı.
  if(z>9.25&&z<10.9&&x>-31&&x<31)return true;
  return false;
